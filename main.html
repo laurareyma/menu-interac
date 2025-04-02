@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veggie House</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- <script src="scriptv2.js"></script> -->
+    <script src="scriptvs2.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Veggie House</h1>
+            </div>
+            <ul class="menu-nav"></ul>
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#menu">Menú</a></li>
+                <li><a href="#equipo">Nuestro Equipo</a></li>
+            </ul>
+            <div class="cart-icon"></div>
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count">0</span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Sección de inicio -->
+        <section id="inicio" class="home-section">
+            <div class="hero">
+                <h2>Bienvenido a Veggie House</h2>
+                <p>Descubre una experiencia culinaria única con nuestra propuesta gastronómica vegana de alta calidad.</p>
+                <p>Utilizamos ingredientes orgánicos y de origen vegetal para crear platos sostenibles que cautivan todos los sentidos.</p>
+                <a href="#menu" class="btn">Nuestro Menú</a>
+            </div>
+        </section>
+
+        <!-- Sección del menú -->
+        <section id="menu" class="menu-section">
+            <h2>Nuestro Menú</h2>
+            
+            <!-- Entradas -->
+            <div id="entradas" class="menu-category">
+                <h3>Entradas</h3>
+                <div class="menu-items">
+                    <!-- Los items se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+            
+            <!-- Platos Principales -->
+            <div id ="principales" class="menu-category">
+                <h3>Platos Principales</h3>
+                <div class="menu-items">
+                    <!-- Los items se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+            
+            <!-- Bebidas -->
+            <div id="bebidas" class="menu-category">
+                <h3>Bebidas</h3>
+                <div class="menu-items">
+                    <!-- Los items se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+            
+            <!-- Postres -->
+            <div id="postres" class="menu-category">
+                <h3>Postres</h3>
+                <div class="menu-items">
+                    <!-- Los items se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Carrito de compras -->
+        <div id="shopping-cart" class="cart-container"></div>
+            <div class="cart-header">
+                <h3>Carrito</h3>
+                <button id="close-cart">X</button>
+            </div>
+            <div id="cart-items" class="cart-items">
+                <!-- Los items se generarán dinámicamente aquí -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <h4>Total:</h4>
+                    <span id="cart-total">$0</span>
+                </div>
+                <button id="checkout" class="checkout-btn">Realizar Pedido</button>
+                <button id="clear-cart" class="clear-btn">Vaciar Carrito</button>
+            </div>
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loading-indicator">Cargando menú...</div>
+
+        <!-- Sección de equipo desarrollador -->
+        <section id="equipo" class="team-section">
+            <h2>Nuestro Equipo Desarrollador</h2>
+            <div class="team-container">
+                <div class="team-member">
+                    <img src="Assets/Desarrollador-1.jpg" alt="Desarrollador 1">
+                    <h3>Ana María Cordero</h3>
+                    <p>Desarrollador Frontend y Backend</p>
+                </div>
+                <div class="team-member">
+                    <img src="Assets/Desarrollador-2.jpg" alt="Desarrollador 2">
+                    <h3>Laura Vanesa Reyes</h3>
+                    <p>Desarrollador Frontend y Backend</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Veggie House. Restaurante Vegano. Todos los derechos reservados.</p>
+    </footer>
+
+    
+</body>
+</html>
