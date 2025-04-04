@@ -30,11 +30,6 @@ body {
     background-color: var(--light-bg);
 }
 
-h1, h2, h3, h4 {
-    margin-bottom: 1rem;
-    font-weight: bold;
-}
-
 a {
     text-decoration: none;
     color: inherit;
@@ -49,42 +44,72 @@ img {
 /* Header y navegación */
 header {
     background-color: var(--primary-color);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 100;
+    padding: 15px 0;
 }
 
 nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 5%;
+    padding: 0 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
 }
 
 .logo h1 {
-    font-size: 1.5rem;
-    color: var(--primary-color);
+    font-size: 2rem;
+    color: var(--white);
     margin: 0;
+    letter-spacing: 1px;
+    font-family: var(--header-font-1);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    transition: var(--transition);
+}
+
+.logo h1:hover {
+    transform: scale(1.05);
 }
 
 .menu-nav {
     display: flex;
-    list-style: none;
+    list-style-type: none;
+    text-decoration: none;
+    gap: 20px;
 }
 
 .menu-nav li {
-    margin: 0 1rem;
+    position: relative;
+    list-style: none;
+    /* margin: 0 15px; */
 }
 
 .menu-nav a {
-    color: var(--text-color);
+    color: var(--white);
     font-weight: 500;
+    font-size: 1.1rem;
+    padding: 8px 15px;
+    border-radius: 20px;
     transition: var(--transition);
 }
 
 .menu-nav a:hover {
+    background-color: var(--light-bg);
     color: var(--white);
+    transform: translateY(-2px);
+}
+
+.menu-nav a.active {
+    background-color: var(--white);
+    color: var(--primary-color);
 }
 
 .cart-icon {
@@ -242,20 +267,20 @@ nav {
 .cart-container {
     position: fixed;
     top: 0;
-    right: -400px;
+    right: -400px; /* Oculto fuera de la pantalla */
     width: 350px;
     height: 100vh;
     background-color: var(--white);
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
     z-index: 1100;
-    transition: var(--transition);
+    transition: var(--transition); /* Transición suave */
     overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
 
 .cart-container.active {
-    right: 0;
+    right: 0; /* Muestra el carrito */
 }
 
 .cart-header {
@@ -265,6 +290,17 @@ nav {
     padding: 1rem;
     background-color: var(--primary-color);
     color: var(--white);
+}
+
+.cart-items {
+    flex-grow: 1;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.cart-footer {
+    padding: 1rem;
+    border-top: 1px solid #eee;
 }
 
 .cart-header h3 {

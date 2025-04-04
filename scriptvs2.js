@@ -301,9 +301,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener para el botón de checkout
     const checkoutBtn = document.getElementById('checkout');
     if (checkoutBtn) {
+        // Mostrar el modal de checkout al hacer clic en el botón
         checkoutBtn.addEventListener('click', function() {
-            // Aquí puedes mostrar un modal con el formulario de checkout
-            // o redirigir a una página de checkout
+            // Verificar si el carrito tiene productos
+            const checkoutModal = document.querySelector('.modal-overlay');
+            if (checkoutModal) {
+                checkoutModal.style.display = 'flex';
+            }
+            // Rellenar el formulario con los datos del cliente
+            const submitOrderBtn = document.getElementById('submit-order');
+            if (submitOrderBtn) {
+                submitOrderBtn.addEventListener('click', function(e) {
+                    e.preventDefault(); // Prevenir el comportamiento por defecto
+                    checkout(); // Llamar a la función checkout
+                });
+            }
+            // Cerrar el modal al hacer clic en el botón de cerrar
+            const closeModalBtn = document.getElementById('close-modal');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', function() {
+                    document.getElementById('checkout-modal').style.display = 'none';
+                });
+            }
+            
         });
     }
     
