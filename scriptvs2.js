@@ -1,5 +1,5 @@
 // Definición de variables globales
-let cartItems = [];
+let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
 let totalAmount = 0;
 const API_URL = 'https://script.google.com/macros/s/AKfycbzRy7MOaj9rZ-PBl4ZmqB0s7w6Mo3nLYcDS6ZMto_s6mb8n2Fd-BxiW1_Qa1DmqlWju/exec';
 
@@ -31,8 +31,7 @@ async function loadMenu() {
         
         // Convertir la respuesta a JSON
         const menuData = await response.json();
-
-        // debugger;
+        console.log('Productos cargado:', menuData);
         
         // Mostrar el menú en la página
         displayMenu(menuData);
@@ -68,10 +67,14 @@ function displayMenu(menuData) {
     
     // Llenar cada categoría con sus productos
     menuData.data.forEach(item => {
-        const category = categories[item.category.toLowerCase()];
+        const category = categories[item.Categorias ? item.Categorias.toLowerCase() : item.category.toLowerCase()]; // Asegurarse de que la categoría esté en minúsculas
+        // Verificar si la categoría existe en el menú
         if (category) {
             const menuItem = document.createElement('div');
             menuItem.classList.add('menu-item');
+
+
+            
             menuItem.innerHTML = `
                 <img src="${item.image}" alt="${item.name}">
                 <h4>${item.name}</h4>
@@ -191,7 +194,7 @@ function displayCart() {
 // Función para enviar el pedido al servidor
 async function submitOrder(orderData) {
     try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbzRy7MOaj9rZ-PBl4ZmqB0s7w6Mo3nLYcDS6ZMto_s6mb8n2Fd-BxiW1_Qa1DmqlWju/exec', {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -204,6 +207,7 @@ async function submitOrder(orderData) {
         }
         
         const result = await response.json();
+        console.log('Pedido enviado con éxito:', result);
         return result;
     } catch (error) {
         console.error('Error al enviar el pedido:', error);
@@ -323,7 +327,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('checkout-modal').style.display = 'none';
                 });
             }
-            
+
+            // Mostrar resumen del pedido en el modal
+            const orderSummary = document.getElementById('order-summary');
+            if (orderSummary) {
+                orderSummary.innerHTML = ''; // Limpiar el resumen anterior
+                cartItems.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.classList.add('order-item');
+                    itemElement.innerHTML = `
+                        <span>${item.name}</span>
+                        <span>$${item.price.toFixed(2)}</span>
+                        <span>Cantidad: ${item.quantity}</span>
+                    `;
+                    orderSummary.appendChild(itemElement);
+                });
+            }
+
+            // Mostrar el total en el modal
+            function updateOrderTotal() {
+                totalAmount = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+                
+                // Actualizar el total en la vista
+                if (document.getElementById('order-total')) {
+                    document.getElementById('order-total').textContent = `$${totalAmount.toFixed(2)}`;
+                }
+            }
+            // Actualizar el total al cargar el modal
+            updateOrderTotal();
+
         });
     }
     
