@@ -5,9 +5,9 @@ services:
     buildCommand: |
       #!/usr/bin/env bash
       pip install -r requirements.txt
-      cd /opt/render/project/src/backend
+      cd backend
       python manage.py migrate
-    startCommand: cd /opt/render/project/src/backend && gunicorn backend.wsgi:application
+    startCommand: cd backend && gunicorn backend.wsgi:application
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
