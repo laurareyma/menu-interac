@@ -4,8 +4,8 @@ services:
     env: python
     buildCommand: |
       #!/usr/bin/env bash
+      pip install -r backend/requirements.txt
       cd backend
-      pip install -r requirements.txt
       python manage.py migrate
     startCommand: cd backend && gunicorn backend.wsgi:application
     envVars:
