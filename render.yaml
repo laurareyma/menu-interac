@@ -2,7 +2,12 @@ services:
   - type: web
     name: menu-interac
     env: python
-    buildCommand: cd backend && pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py create_superuser
+    buildCommand: |
+      cd backend
+      pip install -r requirements.txt
+      python manage.py migrate
+      python manage.py collectstatic --noinput
+      python manage.py create_superuser
     startCommand: cd backend && gunicorn backend.wsgi:application
     envVars:
       - key: PYTHON_VERSION
@@ -17,6 +22,12 @@ services:
         value: false
       - key: ALLOWED_HOSTS
         value: menu-interac.onrender.com
+      - key: DJANGO_SUPERUSER_USERNAME
+        value: admin
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: admin@example.com
+      - key: DJANGO_SUPERUSER_PASSWORD
+        value: admin123
 
 databases:
   - name: menu-interac-db
