@@ -6,7 +6,9 @@ services:
       #!/usr/bin/env bash
       pip install -r backend/requirements.txt
       cd backend
+      python manage.py makemigrations
       python manage.py migrate
+      python manage.py collectstatic --no-input
     startCommand: cd backend && gunicorn backend.wsgi:application
     envVars:
       - key: PYTHON_VERSION
@@ -23,6 +25,8 @@ services:
         generateValue: true
       - key: DJANGO_SETTINGS_MODULE
         value: backend.settings
+      - key: PYTHONPATH
+        value: backend
 
 databases:
   - name: backend-db
