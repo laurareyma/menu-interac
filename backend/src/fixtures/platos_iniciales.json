@@ -1,0 +1,135 @@
+[
+    {
+        "model": "src.plato",
+        "pk": 1,
+        "fields": {
+            "nombre": "Tostadas de Aguacate",
+            "categoria": "entradas",
+            "descripcion": "Pan integral, crema vegetal y aguacate",
+            "precio": 10000.00,
+            "imagen": "static/Assets/orden-8.png"
+        }
+    },
+    {
+        "model": "src.plato",
+        "pk": 2,
+        "fields": {
+            "nombre": "Ensalada César",
+            "categoria": "entradas",
+            "descripcion": "Lechuga romana, proteína Veggie House, crutones, queso parmesano y aderezo césar",
+            "precio": 12500.00,
+            "imagen": "Assets/orden-2.png"
+        }
+    },
+    {
+        "model": "src.plato",
+        "pk": 3,
+        "fields": {
+            "nombre": "Burger Clásica",
+            "categoria": "principales",
+            "descripcion": "Hamburguesa con proteína Veggie House (a base de lenteja), mermelada de pimentón, cebolla, lechuga, tomate, salsa veganesa (ajo y perejil) y mostaza.",
+            "precio": 15900.00,
+            "imagen": "Assets/orden-8.png"
+        }
+    },
+    {
+        "model": "src.plato",
+        "pk": 4,
+        "fields": {
+            "nombre": "Bowl de Albondigas",
+            "categoria": "principales",
+            "descripcion": "Albondigas con proteína Veggie House, brocoli, esparragos, garbanzos y pure de papa.",
+            "precio": 16900.00,
+            "imagen": "Assets/orden-1.png"
+        }
+    }, 
+    {
+        "model": "src.plato",
+        "pk": 5,
+        "fields": {
+            "nombre": "Smoothie de Fresa",
+            "categoria": "bebidas",
+            "descripcion": "Fresa, yogurt de base vegetal, mermelada de fresa, avena",
+            "precio": 10000.00,
+            "imagen": "Assets/orden-3.png"
+        }
+    },
+    {
+        "model": "src.plato",
+        "pk": 6,
+        "fields": {
+            "nombre": "Wrap peggie",
+            "categoria": "principales",
+            "descripcion": "Tortilla rellena de verduras bañado en salsa teriyaki, pico de gallo, aguacate, lechuga y veganesa (ajo y perejil)",
+            "precio": 14500.00,
+            "imagen": "Assets/orden-4.png"
+        }
+    },
+    {
+        "model": "src.plato",
+        "pk": 7,
+        "fields": {
+            "nombre": "Bowl de Lentejas",
+            "categoria": "entradas",
+            "descripcion": "Lentejas con pico de gallo y verdura",
+            "precio": 8000.00,
+            "imagen": "Assets/orden-5.png"
+        }
+    },
+    {
+        "model": "src.plato",
+        "pk": 8,
+        "fields": {
+            "nombre": "Brownie con Helado",
+            "categoria": "postres",
+            "descripcion": "Postre italiano con capas de bizcocho, café, mascarpone y cacao",
+            "precio": 12000.00,
+            "imagen": "Assets/orden-9.jpg"
+        }
+    },
+    {
+        "model": "src.plato",
+        "pk": 9,
+        "fields": {
+            "nombre": "Cheesecake de Fresa",
+            "categoria": "postres",
+            "descripcion": "Postre italiano con capas de bizcocho, café, mascarpone y cacao",
+            "precio": 12400.00,
+            "imagen": "Assets/orden-11.png"
+        }
+    },
+    {
+        "model": "src.plato",
+        "pk": 10,
+        "fields": {
+            "nombre": "Agua Manantial con gas 600 ml",
+            "categoria": "bebidas",
+            "descripcion": "Agua manantial con gas",
+            "precio": 3500.00,
+            "imagen": "Assets/orden-12.png"
+        }
+    },
+    {
+        "model": "src.plato",
+        "pk": 11,
+        "fields": {
+            "nombre": "Coca Cola 500 ml",
+            "categoria": "bebidas",
+            "descripcion": "Coca Cola",
+            "precio": 4500.00,
+            "imagen": "Assets/orden-13.png"
+        }
+    },
+    {
+        "model": "src.plato",
+        "pk": 12,
+        "fields": {
+            "nombre": "Mousse de Chocolate",
+            "categoria": "postres",
+            "descripcion": "Mousse de Chocolate",
+            "precio": 8500.00,
+            "imagen": "Assets/orden-10.png"
+        }
+    }
+]  
+
