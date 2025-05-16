@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="styles/cart.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- Carrito de compras -->
+    <div id="shopping-cart">
+        <div class="cart-header">
+            <h2>Tu Carrito</h2>
+            <button id="close-cart"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-content" id="cart-items">
+            <!-- Los items del carrito se agregarán aquí dinámicamente -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total">$0.00</span>
+            </div>
+            <div class="cart-actions">
+                <button id="clear-cart">Limpiar Carrito</button>
+                <button id="checkout">Finalizar Compra</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de checkout -->
+    <div id="checkout-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Finalizar Compra</h2>
+                <button id="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <form class="order-form">
+                <div class="form-group">
+                    <label for="customer-name">Nombre</label>
+                    <input type="text" id="customer-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-phone">Teléfono</label>
+                    <input type="tel" id="customer-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-address">Dirección</label>
+                    <input type="text" id="customer-address" required>
+                </div>
+                <div id="order-items">
+                    <!-- Los items de la orden se agregarán aquí dinámicamente -->
+                </div>
+                <div id="order-total">
+                    Total: $0.00
+                </div>
+                <button type="submit" id="submit-order">Confirmar Pedido</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

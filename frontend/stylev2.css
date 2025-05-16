@@ -1,0 +1,752 @@
+/* Variables globales */
+:root {
+    --primary-color: #4caf50;
+    --secondary-color: #8bc34a;
+    --accent-color: #ff9800;
+    --text-color: #333;
+    --light-bg: #f1f8e9;
+    --dark-bg: #2e7d32;
+    --white: #ffffff;
+    --transition: all 0.3s ease;
+    --header-font-1: "Alfa Slab One", serif;
+    --header-font-2: "Bebas Neue", sans-serif;
+}
+
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--header-font-2);
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--light-bg);
+}
+
+h1, h2, h3, h4 {
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Header y navegación */
+header {
+    background-color: var(--primary-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5%;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    color: var(--white);
+    margin: 0;
+}
+
+.menu-nav {
+    display: flex;
+    list-style: none;
+    padding: 0; /* Elimina el padding predeterminado */
+    margin: 0; /* Elimina el margen predeterminado */
+}
+
+.menu-nav li {
+    margin: 0 1rem;
+    list-style: none;
+    color: var(--white);
+}
+
+.menu-nav a {
+    color: var(--white);
+    font-weight: 1000;
+    transition: var(--transition);
+    list-style: none;
+}
+
+
+.cart-icon {
+    position: relative;
+    cursor: pointer;
+}
+
+.cart-icon i {
+    font-size: 1.2rem;
+    color: var(--white);
+}
+
+#cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--secondary-color);
+    color: var(--white);
+    font-size: 0.7rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Sección principal */
+.home-section {
+    height: 85vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('Assets/banner-3.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--white);
+    padding: 0 1rem;
+}
+
+.hero {
+    max-width: 800px;
+}
+
+.hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.btn {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    margin-top: 1rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-3px);
+}
+
+/* Sección de menú */
+.menu-section {
+    padding: 4rem 5%;
+}
+
+.menu-section h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2.5rem;
+    color: var(--primary-color);
+}
+
+.menu-category {
+    margin-bottom: 3rem;
+}
+
+.menu-category h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 0.5rem;
+}
+
+.menu-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.menu-item {
+    background: linear-gradient(135deg, #f8fff8 60%, #e8f5e9 100%);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(76, 175, 80, 0.10), 0 1.5px 4px rgba(0,0,0,0.04);
+    border: 1.5px solid #e0e0e0;
+    transition: box-shadow 0.3s, transform 0.2s;
+    padding-bottom: 1.5rem;
+    padding: 1rem; /* Ajustar el padding interno */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: auto; /* Permitir que el contenedor se ajuste dinámicamente */
+}
+
+.menu-item:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 12px 32px rgba(76, 175, 80, 0.18), 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.menu-item img {
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.07);
+}
+
+.menu-item h4 {
+    font-size: 1.3rem;
+    padding: 1rem 1rem 0.5rem;
+    color: var(--primary-color);
+    font-family: var(--header-font-1);
+    letter-spacing: 1px;
+}
+
+.menu-item p {
+    padding: 0 1rem;
+    font-size: 1rem;
+    color: #444;
+}
+
+.menu-item .price {
+    font-weight: bold;
+    font-size: 1.15rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+}
+
+.add-to-cart {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: transform 0.3s, background-color 0.3s;
+    width: 90%; /* Ajustar el ancho del botón */
+    padding: 0.6rem 1rem; /* Reducir el padding */
+    font-size: 0.9rem; /* Ajustar el tamaño del texto */
+    margin-top: 1rem;
+    border-radius: 6px; /* Ajustar los bordes redondeados */
+}
+
+.add-to-cart:hover {
+    background: var(--secondary-color);
+    transform: scale(1.05);
+}
+
+.add-to-cart i {
+    font-size: 1.3em;
+    margin-right: 0.3em;
+    transition: transform 0.2s;
+}
+
+.add-to-cart:active i {
+    transform: scale(1.2) rotate(-10deg);
+}
+
+/* Carrito de compras */
+.cart-container {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 350px;
+    height: 100vh;
+    background-color: var(--white);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1100;
+    transition: var(--transition);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-container.active {
+    right: 0;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.cart-header h3 {
+    margin: 0;
+}
+
+#close-cart {
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+.cart-items {
+    flex-grow: 1;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item-info {
+    flex-grow: 1;
+}
+
+.cart-item-name {
+    font-weight: 600;
+}
+
+.cart-item-price, .cart-item-quantity {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.cart-item-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    transition: var(--transition);
+}
+
+.cart-item-actions button:hover {
+    color: var(--primary-color);
+}
+
+.cart-footer {
+    padding: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.checkout-btn, .clear-btn {
+    display: block;
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.checkout-btn {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.clear-btn {
+    background-color: #f2f2f2;
+    color: #666;
+}
+
+.checkout-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.clear-btn:hover {
+    background-color: #e0e0e0;
+}
+
+/* Sección de equipo */
+.team-section {
+    padding: 4rem 5%;
+    background-color: var(--accent-color);
+}
+
+.team-section h2 {
+    text-align: center;
+    color: var(--white);
+    margin-bottom: 2.5rem;
+}
+
+.team-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.team-member {
+    background-color: var(--white);
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
+}
+
+.team-member:hover {
+    transform: translateY(-5px);
+}
+
+.team-member img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+}
+
+.team-member h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.team-member p {
+    color: var(--secondary-color);
+    font-style: italic;
+}
+
+/* Footer */
+footer {
+    background-color: var(--dark-bg);
+    color: var(--white);
+    text-align: center;
+    padding: 1.5rem;
+}
+
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+}
+
+/* Checkout form */
+.checkout-form {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.checkout-form h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.form-group textarea {
+    min-height: 100px;
+}
+
+#submit-order {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+#submit-order:hover {
+    background-color: var(--secondary-color);
+}
+
+#close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+/* Error message */
+.error-message {
+    background-color: #fff3f3;
+    border: 1px solid #ffcdd2;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    color: #d32f2f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.error-message i {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.error-message p {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.retry-btn {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s;
+}
+
+.retry-btn:hover {
+    background-color: #b71c1c;
+}
+
+.retry-btn i {
+    font-size: 1em;
+    margin: 0;
+}
+
+/* Quantity controls */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    gap: 10px; /* Espaciado entre los elementos */
+}
+
+.control-btn {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s, background-color 0.3s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    width: 35px; /* Ajustar el tamaño del botón */
+    height: 35px;
+    font-size: 1rem; /* Ajustar el tamaño del texto */
+    margin: 0 5px; /* Espaciado entre los botones */
+}
+
+.control-btn:hover {
+    background-color: var(--secondary-color);
+    transform: scale(1.1);
+}
+
+.control-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Add to cart button styling */
+.add-to-cart {
+    background-color: #ff6b6b;
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    transition: var(--transition);
+}
+
+.add-to-cart:hover {
+    background-color: #ff5252;
+    transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.empty-cart-message {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+/* Media queries para responsive */
+@media screen and (max-width: 768px) {
+    .menu-nav {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--white);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu-nav.active {
+        display: flex;
+    }
+
+    .menu-nav li {
+        margin: 0;
+    }
+
+    .menu-nav li a {
+        display: block;
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .hero h2 {
+        font-size: 2rem;
+    }
+
+    .cart-container {
+        width: 300px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .home-section {
+        height: 70vh;
+    }
+
+    .hero h2 {
+        font-size: 1.8rem;
+    }
+
+    .menu-items {
+        grid-template-columns: 1fr;
+    }
+
+    .menu-section, .team-section {
+        padding: 2rem;
+    }
+
+    .cart-container {
+        width: 85%;
+    }
+}
+
+/* Notificaciones del sistema */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    z-index: 2000;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.error {
+    border-left: 4px solid #d32f2f;
+}
+
+.notification.success {
+    border-left: 4px solid #4caf50;
+}
+
+.notification i {
+    font-size: 1.2em;
+}
+
+.notification.error i {
+    color: #d32f2f;
+}
+
+.notification.success i {
+    color: #4caf50;
+}
+
+.notification p {
+    margin: 0;
+    font-size: 0.95em;
+    color: #333;
+}

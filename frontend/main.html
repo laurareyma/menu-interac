@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veggie House</title>
+     <link rel="stylesheet" href="stylev2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="styles/cart.css">
+    <script src="script.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Veggie House</h1>
+            </div>
+            <ul class="menu-nav">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#menu">Menú</a></li>
+                <li><a href="#equipo">Nuestro Equipo</a></li>
+            </ul>
+
+            <div class="cart-icon" id="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count">0</span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Sección de inicio -->
+        <section id="inicio" class="home-section">
+            <div class="hero">
+                <h2>Bienvenido a Veggie House</h2>
+                <p>Descubre una experiencia culinaria única con nuestra propuesta gastronómica vegana de alta calidad.</p>
+                <p>Utilizamos ingredientes orgánicos y de origen vegetal para crear platos sostenibles que cautivan todos los sentidos.</p>
+                <a href="#menu" class="btn">Nuestro Menú</a>
+            </div>
+        </section>
+        <!-- Loading indicator -->
+        <div id="loading-indicator" class="loading-indicator" style="display: none;">Cargando menú...</div>
+
+        <!-- Sección del menú -->
+        <section id="menu" class="menu-section">
+            <h2>Nuestro Menú</h2>
+            
+            <!-- Entradas -->
+            <div id="entradas" class="menu-category">
+                <h3>Entradas</h3>
+                <div class="menu-items">
+                    <!-- Los items se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+            
+            <!-- Platos Principales -->
+            <div id ="principales" class="menu-category">
+                <h3>Platos Principales</h3>
+                <div class="menu-items">
+                <!-- Los items se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+            
+            <!-- Bebidas -->
+            <div id="bebidas" class="menu-category">
+                <h3>Bebidas</h3>
+                <div class="menu-items">
+                    <!-- Los items se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+            
+            <!-- Postres -->
+            <div id="postres" class="menu-category">
+                <h3>Postres</h3>
+                <div class="menu-items">
+                    <!-- Los items se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Carrito de compras -->
+        <div id="shopping-cart" class="cart-container">
+            <div class="cart-header">
+                <h3>Tu Carrito</h3>
+                <button id="close-cart" class="close-cart-btn">x</button>
+            </div>
+            <div id="cart-items" class="cart-items">
+                <!-- Los items del carrito se generarán dinámicamente aquí -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    Total: <span id="cart-total">$0.00</span>
+                </div>
+                <button id="checkout" class="checkout-btn">Realizar Pedido</button>
+                <button id="clear-cart" class="clear-btn">Vaciar Carrito</button>
+            </div>
+        </div>
+
+        <!-- Sección de equipo desarrollador -->
+        <section id="equipo" class="team-section">
+            <h2>Nuestro Equipo Desarrollador</h2>
+            <div class="team-container">
+                <div class="team-member">
+                    <img src="Assets/Desarrollador-1.jpg" alt="Desarrollador 1">
+                    <h3>Ana María Cordero</h3>
+                    <p>Desarrollador Frontend y Backend</p>
+                </div>
+                <div class="team-member">
+                    <img src="Assets/Desarrollador-2.jpg" alt="Desarrollador 2">
+                    <h3>Laura Vanesa Reyes</h3>
+                    <p>Desarrollador Frontend y Backend</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal de checkout -->
+    <div id="checkout-modal" class="modal-overlay" style="display: none;">
+        <div class="checkout-form">
+            <h2>Finalizar Pedido</h2>
+            <button id="close-modal" class="close-modal">×</button>
+            
+            <div class="form-group">
+                <label for="customer-name">Nombre completo:</label>
+                <input type="text" id="customer-name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="customer-phone">Teléfono:</label>
+                <input type="tel" id="customer-phone" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="customer-address">Dirección de entrega:</label>
+                <textarea id="customer-address" required></textarea>
+            </div>
+            
+            <div class="order-summary">
+                <h3>Resumen del pedido</h3>
+                <div id="order-items"></div>
+                <div class="order-total">
+                    Total: <span id="order-total">$0.00</span>
+                </div>
+            </div>
+            
+            <button id="submit-order">Confirmar Pedido</button>
+        </div>
+    </div>
+
+    <!-- Formulario de inicio de sesión -->
+    <div id="login-form" style="display:none;">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+        <button id="login-button">Login</button>
+    </div>
+
+    <!-- <button id="fetch-orders-button">Fetch Orders</button> -->
+    <!-- <div id="order-list"></div> -->
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Veggie House. Restaurante Vegano. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('checkout-modal');
+        const modalContent = document.querySelector('.modal-content');
+        if (!modal || !modalContent) return;
+
+        // Si el modal está visible y el clic fue fuera del contenido del modal
+        if (
+            modal.style.display === 'flex' &&
+            !modalContent.contains(event.target) &&
+            event.target.id !== 'checkout'
+        ) {
+            toggleCheckoutModal(false);
+        }
+    });
+
+    const closeModalBtn = document.getElementById('close-modal');
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleCheckoutModal(false);
+        });
+    }
+
+    const modalContent = document.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    </script>
+</body>
+</html>
