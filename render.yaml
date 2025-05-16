@@ -2,7 +2,7 @@ services:
   - type: web
     name: backend
     env: python
-    buildCommand: chmod +x build.sh && ./build.sh
+    buildCommand: pip install -r backend/requirements.txt && cd backend && python manage.py migrate
     startCommand: cd backend && gunicorn backend.wsgi:application
     envVars:
       - key: PYTHON_VERSION
@@ -19,8 +19,6 @@ services:
         generateValue: true
       - key: DJANGO_SETTINGS_MODULE
         value: backend.settings
-      - key: PYTHONPATH
-        value: backend
 
 databases:
   - name: backend-db
