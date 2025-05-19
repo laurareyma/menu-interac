@@ -26,9 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8*ou3n9ef5c*-q=ik1%a21ux!#xs2t-49xh&pc)pw2f*%j6a6*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # Set to True for development
+DEBUG = False  # Set to False for production
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Add development hosts
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend-33hb.onrender.com']  # Add development and production hosts
 
 
 # Application definition
@@ -165,6 +165,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5500",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://backend-33hb.onrender.com",  # Add your Render domain
 ]
 
 # Configuración de REST Framework
@@ -204,10 +205,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Security settings
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-CSRF_COOKIE_HTTPONLY = False
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
 
 # Configuración de logging
 LOGGING = {
