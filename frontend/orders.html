@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Pedidos</title>
+    <link rel="stylesheet" href="styles/orders.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-utensils"></i>
+            <span>Gestor de Pedidos</span>
+        </div>
+        <div class="nav-user">
+            <span id="user-name"></span>
+            <button id="logout-button" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="status-filter">Estado:</label>
+                <select id="status-filter">
+                    <option value="all">Todos</option>
+                    <option value="pendiente">Pendientes</option>
+                    <option value="atendido">Atendidos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="search-client">Buscar Cliente:</label>
+                <input type="text" id="search-client" placeholder="Nombre del cliente...">
+            </div>
+            <div class="filter-group">
+                <label for="search-phone">Teléfono:</label>
+                <input type="text" id="search-phone" placeholder="Número de teléfono...">
+            </div>
+            <div class="filter-group">
+                <label for="search-address">Dirección:</label>
+                <input type="text" id="search-address" placeholder="Dirección...">
+            </div>
+        </div>
+
+        <div class="orders-container">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-list">
+                    <!-- Los pedidos se cargarán dinámicamente aquí -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Modal para ver detalles del pedido -->
+    <div id="order-details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detalles del Pedido</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="order-details-content">
+                    <!-- Los detalles del pedido se cargarán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

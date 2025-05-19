@@ -1,15 +1,14 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 from . import views
 
-router = DefaultRouter()
-router.register(r'platos', views.PlatoViewSet)
-
 urlpatterns = [
-    path('api/', include(router.urls)),
-    path('api/platos/', views.obtener_platos, name='obtener_platos'),
-    path('platos/orders/', views.order_list, name='order_list'),
-    path('platos/', views.plato_list, name='plato_list'),
+    path('platos/', views.obtener_platos, name='obtener_platos'),
     path('platos/<int:pk>/', views.plato_detail, name='plato_detail'),
-    path('orders/', views.order_list, name='order_list'),
+    path('pedidos/', views.order_list, name='order_list'),
+    path('pedidos/<int:order_id>/', views.get_order_details, name='get_order_details'),
+    path('pedidos/<int:order_id>/status/', views.update_order_status, name='update_order_status'),
+    
+    # URLs de autenticación
+    path('auth/login/', views.login_view, name='login'),
+    path('auth/logout/', views.logout_view, name='logout'),
 ]

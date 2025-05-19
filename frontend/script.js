@@ -70,26 +70,98 @@ async function fetchWithTimeout(url, options = {}) {
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
 
     try {
+        console.log('Iniciando petición a:', url);
+        console.log('Opciones de la petición:', {
+            method: options.method || 'GET',
+            headers: options.headers,
+            body: options.body ? JSON.parse(options.body) : undefined
+        });
+
+        // Obtener el token si existe
+        const user = JSON.parse(localStorage.getItem('user'));
+        const headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+
+        // Agregar el token de autenticación si existe y no es una petición de login
+        if (user && user.token && !url.includes('auth/login')) {
+            headers['Authorization'] = `Bearer ${user.token}`;
+        }
+
         const response = await fetch(url, {
             ...options,
             signal: controller.signal,
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
+            headers: headers,
+            mode: 'cors',
+            credentials: 'include'
         });
 
         clearTimeout(timeoutId);
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.detail || `Error del servidor: ${response.status} ${response.statusText}`);
+        console.log('Respuesta recibida:', {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries())
+        });
+
+        // Verificar el tipo de contenido de la respuesta
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            console.error('Respuesta no-JSON recibida:', {
+                contentType,
+                status: response.status,
+                statusText: response.statusText
+            });
+            throw new Error('El servidor devolvió una respuesta no-JSON. Por favor, intenta nuevamente.');
         }
 
-        return response;
+        if (!response.ok) {
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                console.error('Error al parsear respuesta de error:', e);
+                errorData = { error: `Error del servidor: ${response.status} ${response.statusText}` };
+            }
+            
+            console.error('Error en la respuesta:', errorData);
+            
+            // Si el error es de autenticación, redirigir al login
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            throw new Error(errorData.error || errorData.detail || `Error del servidor: ${response.status} ${response.statusText}`);
+        }
+
+        // Intentar parsear la respuesta como JSON
+        let data;
+        try {
+            data = await response.json();
+        } catch (e) {
+            console.error('Error al parsear respuesta JSON:', e);
+            throw new Error('Error al procesar la respuesta del servidor');
+        }
+
+        return data;
     } catch (error) {
         clearTimeout(timeoutId);
+        console.error('Error en fetchWithTimeout:', {
+            url,
+            error: error.message,
+            type: error.name,
+            stack: error.stack
+        });
+        
+        if (error.name === 'AbortError') {
+            throw new Error('La petición tardó demasiado tiempo en completarse');
+        } else if (error.message.includes('Failed to fetch')) {
+            throw new Error('No se pudo conectar con el servidor. Por favor, verifica que el servidor esté corriendo en ' + API_URL);
+        }
         throw error;
     }
 }
@@ -126,24 +198,91 @@ async function loadMenu() {
         }
 
         console.log('Intentando cargar el menú desde:', `${API_URL}platos/`);
-        const response = await fetchWithTimeout(`${API_URL}platos/`);
-        console.log('Respuesta del servidor:', response.status);
+        
+        // Verificar si el servidor está disponible
+        try {
+            console.log('Realizando prueba de conexión...');
+            const testResponse = await fetch(`${API_URL}platos/`, {
+                method: 'HEAD',
+                mode: 'cors',
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            console.log('Test de conexión al servidor:', {
+                status: testResponse.status,
+                statusText: testResponse.statusText,
+                headers: testResponse.headers ? Object.fromEntries(testResponse.headers.entries()) : 'No headers available'
+            });
+        } catch (testError) {
+            console.error('Error detallado al conectar con el servidor:', {
+                error: testError,
+                message: testError.message,
+                stack: testError.stack
+            });
+            throw new Error('No se pudo conectar con el servidor. Por favor, verifica que el servidor esté corriendo en ' + API_URL);
+        }
+
+        console.log('Iniciando petición principal...');
+        const response = await fetch(`${API_URL}platos/`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors',
+            credentials: 'include'
+        });
+        
+        console.log('Respuesta del servidor:', {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers ? Object.fromEntries(response.headers.entries()) : 'No headers available'
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error del servidor:', {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText
+            });
+            throw new Error(`Error del servidor: ${response.status} ${response.statusText || 'Error desconocido'}`);
+        }
         
         let menuData;
         try {
-            menuData = await response.json();
-            console.log('Datos recibidos:', menuData);
+            const responseData = await response.json();
+            console.log('Datos recibidos:', responseData);
+            
+            // Verificar si la respuesta tiene el formato esperado
+            if (!responseData) {
+                throw new Error('La respuesta del servidor está vacía');
+            }
+            
+            menuData = responseData.data || responseData;
+            
+            // Verificar si menuData es un array
+            if (!Array.isArray(menuData)) {
+                console.error('Formato de datos inválido:', menuData);
+                throw new Error('El formato de los datos recibidos no es válido');
+            }
+            
+            // Verificar si el array está vacío
+            if (menuData.length === 0) {
+                console.warn('El menú está vacío');
+                showNotification('No hay platos disponibles en el menú', 'warning');
+            }
         } catch (e) {
-            console.error('Error al parsear la respuesta:', e);
-            throw new Error('Error al procesar la respuesta del servidor');
+            console.error('Error al procesar la respuesta:', {
+                error: e,
+                message: e.message,
+                stack: e.stack
+            });
+            throw new Error('Error al procesar la respuesta del servidor: ' + e.message);
         }
         
-        // Validar la estructura de los datos
-        if (!menuData) {
-            console.error('No se recibieron datos del servidor');
-            throw new Error('No se recibieron datos del servidor');
-        }
-
         // Si los datos están en formato de fixture (con model, pk, fields)
         if (Array.isArray(menuData) && menuData.length > 0 && menuData[0].fields) {
             menuData = menuData.map(item => ({
@@ -156,18 +295,16 @@ async function loadMenu() {
             }));
         }
 
-        // Validar que los datos tienen el formato correcto después de la transformación
-        if (!Array.isArray(menuData)) {
-            console.error('Formato de datos inválido:', menuData);
-            throw new Error('Formato de datos inválido');
-        }
-
         // Mostrar el menú en la página
         displayMenu(menuData);
         showNotification('Menú cargado exitosamente', 'success');
 
     } catch (error) {
-        console.error('Error detallado al cargar el menú:', error);
+        console.error('Error detallado al cargar el menú:', {
+            error: error,
+            message: error.message,
+            stack: error.stack
+        });
         
         // Manejar diferentes tipos de errores
         let errorMessage = 'Error al cargar el menú. ';
@@ -472,36 +609,43 @@ function displayCart() {
 // Función para enviar el pedido al servidor
 async function submitOrder(orderData) {
     try {
-        console.log('Enviando pedido al servidor:', orderData); // Debug log
-        const response = await fetchWithTimeout(`${API_URL}orders/`, {
+        console.log('Enviando pedido al servidor:', orderData);
+
+        const response = await fetch(`${API_URL}pedidos/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify(orderData)
+            body: JSON.stringify({
+                cliente: orderData.cliente,
+                telefono: orderData.telefono,
+                direccion: orderData.direccion,
+                platos: orderData.platos.map(item => ({
+                    plato_id: item.plato_id,
+                    cantidad: item.cantidad
+                }))
+            }),
+            mode: 'cors',
+            credentials: 'omit' // Cambiado a 'omit' para no enviar credenciales
         });
 
-        console.log('Respuesta del servidor:', response.status); // Debug log
+        console.log('Respuesta del servidor:', {
+            status: response.status,
+            statusText: response.statusText
+        });
         
-        // Verificar si la respuesta es válida
-        if (!response) {
-            throw new Error('No se recibió respuesta del servidor');
-        }
-
         let responseData;
         try {
-            // Intentar obtener los datos directamente como JSON
             responseData = await response.json();
-            console.log('Datos de respuesta:', responseData); // Debug log
+            console.log('Datos de respuesta:', responseData);
         } catch (e) {
             console.error('Error al procesar la respuesta:', e);
             throw new Error('Error al procesar la respuesta del servidor: ' + e.message);
         }
 
         if (!response.ok) {
-            const errorMessage = responseData?.error || responseData?.detail || `Error del servidor: ${response.status} ${response.statusText}`;
-            throw new Error(errorMessage);
+            throw new Error(responseData?.error || responseData?.detail || `Error del servidor: ${response.status} ${response.statusText}`);
         }
 
         if (!responseData || !responseData.id) {
@@ -512,7 +656,7 @@ async function submitOrder(orderData) {
         return { success: true, orderId: responseData.id };
     } catch (error) {
         console.error('Error al enviar el pedido:', error);
-        console.error('Detailed error:', error.message, error.stack); // Log stack trace
+        console.error('Detailed error:', error.message, error.stack);
         throw new Error(error.message || 'No se pudo procesar el pedido. Por favor, intenta nuevamente.');
     }
 }
@@ -547,13 +691,16 @@ async function checkout() {
         
         // Preparar el objeto de pedido en el formato que espera el backend
         const orderData = {
+            cliente: customerName,
+            telefono: customerPhone,
+            direccion: customerAddress,
             platos: cartItems.map(item => ({
                 plato_id: parseInt(item.id),
                 cantidad: parseInt(item.quantity)
             }))
         };
 
-        console.log('Enviando pedido:', orderData); // Debug log
+        console.log('Enviando pedido:', orderData);
 
         // Mostrar indicador de carga
         const submitButton = document.getElementById('submit-order');
@@ -562,48 +709,49 @@ async function checkout() {
             submitButton.textContent = 'Procesando...';
         }
 
-        // Enviar el pedido al servidor
-        const result = await submitOrder(orderData);
-        
-        if (result.success) {
-            showNotification(`¡Gracias por tu pedido! Tu orden #${result.orderId} ha sido procesada.`, 'success');
+        try {
+            // Enviar el pedido al servidor
+            const result = await submitOrder(orderData);
             
-            // Mostrar resumen final si estamos en la página de carrito
-            const cartSummary = document.querySelector(".cart-summary");
-            if (cartSummary) {
-                const finalSummary = document.createElement("div");
-                finalSummary.classList.add("final-summary");
-                finalSummary.innerHTML = `
-                    <h2>Resumen Final de Compra</h2>
-                    <p>Productos: ${cartItems.reduce((total, item) => total + item.quantity, 0)}</p>
-                    <p>Total producto: $${totalAmount.toLocaleString()}</p>
-                    <p>Total: $${(totalAmount).toLocaleString()}</p>
-                `;
-                cartSummary.appendChild(finalSummary);
+            if (result.success) {
+                showNotification(`¡Gracias por tu pedido! Tu orden #${result.orderId} ha sido procesada.`, 'success');
+                
+                // Mostrar resumen final si estamos en la página de carrito
+                const cartSummary = document.querySelector(".cart-summary");
+                if (cartSummary) {
+                    const finalSummary = document.createElement("div");
+                    finalSummary.classList.add("final-summary");
+                    finalSummary.innerHTML = `
+                        <h2>Resumen Final de Compra</h2>
+                        <p>Productos: ${cartItems.reduce((total, item) => total + item.quantity, 0)}</p>
+                        <p>Total producto: $${totalAmount.toLocaleString()}</p>
+                        <p>Total: $${(totalAmount).toLocaleString()}</p>
+                    `;
+                    cartSummary.appendChild(finalSummary);
+                }
+                
+                // Limpiar carrito
+                clearCart();
+                
+                // Cerrar modal si existe
+                const checkoutModal = document.getElementById('checkout-modal');
+                if (checkoutModal) {
+                    checkoutModal.style.display = 'none';
+                }
             }
-            
-            // Limpiar carrito
-            clearCart();
-            
-            // Cerrar modal si existe
-            const checkoutModal = document.getElementById('checkout-modal');
-            if (checkoutModal) {
-                checkoutModal.style.display = 'none';
+        } catch (error) {
+            console.error('Error en checkout:', error);
+            showNotification(error.message, 'error');
+        } finally {
+            // Restaurar botón de submit
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Confirmar Pedido';
             }
-        } else {
-            throw new Error('No se pudo procesar el pedido correctamente');
         }
-
     } catch (error) {
         console.error('Error en checkout:', error);
         showNotification(error.message, 'error');
-    } finally {
-        // Restaurar botón de submit
-        const submitButton = document.getElementById('submit-order');
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.textContent = 'Confirmar Pedido';
-        }
     }
 }
 
@@ -685,64 +833,61 @@ function updateOrderSummary() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded');
     
-    const checkoutBtn = document.getElementById('checkout');
-    if (checkoutBtn) {
-        console.log('Checkout button found');
-        checkoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Checkout button clicked');
-            toggleCheckoutModal(true);
-        });
-    } else {
-        console.error('Checkout button not found');
-    }
-
-    // Event listener para cerrar el modal
-    const closeModalBtn = document.getElementById('close-modal');
-    if (closeModalBtn) {
-        console.log('Close modal button found');
-        closeModalBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Close modal button clicked');
-            toggleCheckoutModal(false);
-        });
-    } else {
-        console.error('Close modal button not found');
-    }
-
-    // Event listener para cerrar el modal al hacer clic fuera
-    document.addEventListener('click', function(event) {
-        const modal = document.getElementById('checkout-modal');
-        const modalContent = document.querySelector('.modal-content');
+    // Solo buscar el botón de checkout si estamos en la página principal o carrito
+    if (window.location.pathname.includes('main.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
         const checkoutBtn = document.getElementById('checkout');
-        
-        if (!modal || !modalContent) {
-            return;
+        if (checkoutBtn) {
+            console.log('Checkout button found');
+            checkoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Checkout button clicked');
+                toggleCheckoutModal(true);
+            });
         }
-        
-        // Si el modal está visible y el clic fue fuera del contenido del modal
-        if (modal.style.display === 'flex' && 
-            !modalContent.contains(event.target) && 
-            event.target !== checkoutBtn) {
-            console.log('Click outside modal detected');
-            toggleCheckoutModal(false);
-        }
-    });
 
-    // Event listener para enviar el pedido
-    const submitOrderBtn = document.getElementById('submit-order');
-    if (submitOrderBtn) {
-        console.log('Submit order button found');
-        submitOrderBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Submit order button clicked');
-            checkout();
+        // Event listener para cerrar el modal
+        const closeModalBtn = document.getElementById('close-modal');
+        if (closeModalBtn) {
+            console.log('Close modal button found');
+            closeModalBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Close modal button clicked');
+                toggleCheckoutModal(false);
+            });
+        }
+
+        // Event listener para enviar el pedido
+        const submitOrderBtn = document.getElementById('submit-order');
+        if (submitOrderBtn) {
+            console.log('Submit order button found');
+            submitOrderBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Submit order button clicked');
+                checkout();
+            });
+        }
+
+        // Event listener para cerrar el modal al hacer clic fuera
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('checkout-modal');
+            const modalContent = document.querySelector('.modal-content');
+            const checkoutBtn = document.getElementById('checkout');
+            
+            if (!modal || !modalContent) {
+                return;
+            }
+            
+            // Si el modal está visible y el clic fue fuera del contenido del modal
+            if (modal.style.display === 'flex' && 
+                !modalContent.contains(event.target) && 
+                event.target !== checkoutBtn) {
+                console.log('Click outside modal detected');
+                toggleCheckoutModal(false);
+            }
         });
-    } else {
-        console.error('Submit order button not found');
     }
 });
 
@@ -848,3 +993,544 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchOrdersButton.addEventListener('click', fetchOrderData);
     }
 });
+
+// Funciones de autenticación
+async function login(username, password) {
+    try {
+        console.log('Intentando login con usuario:', username);
+        
+        const loginData = {
+            username: username,
+            password: password
+        };
+        
+        console.log('Datos de login:', { username: username, password: '****' });
+        
+        const response = await fetch(`${API_URL}auth/login/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(loginData),
+            credentials: 'include',
+            mode: 'cors'
+        });
+
+        console.log('Respuesta del servidor:', response.status);
+        const data = await response.json();
+        console.log('Datos recibidos:', data);
+
+        if (!response.ok) {
+            const errorMessage = data.error || data.detail || 'Error al iniciar sesión';
+            console.error('Error de autenticación:', errorMessage);
+            throw new Error(errorMessage);
+        }
+
+        // Verificar que tenemos un token dentro del objeto user
+        if (!data.user || !data.user.token) {
+            console.error('No se recibió token en la respuesta:', data);
+            throw new Error('No se recibió token de autenticación');
+        }
+
+        // Guardar información del usuario y token
+        const userData = {
+            username: data.user.username,
+            token: data.user.token,
+            is_staff: data.user.is_staff
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        console.log('Login exitoso, token guardado:', userData);
+        
+        // Esperar un momento para asegurar que el token se guarde
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Verificar que el token se guardó correctamente
+        const savedUser = JSON.parse(localStorage.getItem('user'));
+        if (!savedUser || !savedUser.token) {
+            throw new Error('Error al guardar la sesión');
+        }
+        
+        // Redirigir a la página de pedidos
+        window.location.href = 'orders.html';
+    } catch (error) {
+        console.error('Error en login:', error);
+        const errorMessage = document.getElementById('error-message');
+        if (errorMessage) {
+            errorMessage.textContent = error.message;
+            errorMessage.style.display = 'block';
+        }
+        throw error;
+    }
+}
+
+// Función para verificar si el usuario está autenticado
+function checkAuth() {
+    console.log('Verificando autenticación...');
+    const user = JSON.parse(localStorage.getItem('user'));
+    console.log('Datos de usuario:', user);
+    
+    if (!user || !user.token) {
+        console.log('No hay usuario autenticado o token inválido');
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+        return false;
+    }
+    
+    // Verificar que el token no esté expirado
+    const token = user.token;
+    if (!token || token.length < 10) {  // Un token válido debería tener al menos 10 caracteres
+        console.log('Token inválido o expirado');
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+        return false;
+    }
+    
+    console.log('Usuario autenticado correctamente');
+    return true;
+}
+
+async function logout() {
+    try {
+        // Obtener el token de la sesión
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || !user.token) {
+            console.error('No hay usuario en sesión o token no encontrado');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        await fetchWithTimeout(`${API_URL}auth/logout/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+            }
+        });
+
+        // Limpiar información del usuario
+        localStorage.removeItem('user');
+        
+        // Redirigir a la página de login
+        window.location.href = 'login.html';
+    } catch (error) {
+        console.error('Error en logout:', error);
+        showNotification('Error al cerrar sesión', 'error');
+    }
+}
+
+// Funciones de gestión de pedidos
+async function loadOrders(status = 'all', client = '', phone = '', address = '') {
+    try {
+        console.log('Iniciando carga de pedidos...');
+        
+        // Verificar autenticación
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || !user.token) {
+            console.error('No hay usuario autenticado');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Construir la URL base
+        const baseUrl = `${API_URL}pedidos/`;
+        console.log('URL base:', baseUrl);
+
+        // Construir la URL con los parámetros
+        const url = new URL(baseUrl);
+        if (status !== 'all') url.searchParams.append('status', status);
+        if (client) url.searchParams.append('client', client);
+        if (phone) url.searchParams.append('phone', phone);
+        if (address) url.searchParams.append('address', address);
+
+        console.log('URL final de la petición:', url.toString());
+        console.log('Token de autenticación:', user.token);
+
+        // Realizar la petición
+        const response = await fetchWithTimeout(url.toString(), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+            }
+        });
+
+        console.log('Respuesta del servidor:', {
+            status: response.status,
+            data: response.data
+        });
+        
+        if (!response.data) {
+            console.error('No se recibieron datos en la respuesta');
+            showNotification('No se pudieron cargar los pedidos', 'error');
+            return;
+        }
+
+        console.log('Mostrando pedidos:', response.data);
+        displayOrders(response.data);
+    } catch (error) {
+        console.error('Error al cargar pedidos:', error);
+        if (error.message.includes('autenticación') || error.message.includes('no autorizado')) {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        } else {
+            showNotification(error.message, 'error');
+        }
+    }
+}
+
+function displayOrders(orders) {
+    console.log('Iniciando displayOrders con:', JSON.stringify(orders, null, 2));
+    const ordersList = document.getElementById('orders-list');
+    if (!ordersList) {
+        console.error('No se encontró el elemento orders-list');
+        return;
+    }
+
+    ordersList.innerHTML = '';
+
+    if (!Array.isArray(orders) || orders.length === 0) {
+        console.log('No hay pedidos para mostrar');
+        ordersList.innerHTML = `
+            <tr>
+                <td colspan="7" class="no-orders">
+                    No hay pedidos para mostrar
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    orders.forEach((order, index) => {
+        console.log(`Procesando pedido ${index + 1}:`, JSON.stringify(order, null, 2));
+        
+        // Obtener la información del cliente
+        let clienteNombre, clienteTelefono, clienteDireccion;
+
+        if (order.cliente && typeof order.cliente === 'object') {
+            // Si cliente es un objeto con propiedades
+            clienteNombre = order.cliente.nombre || 'Cliente no especificado';
+            clienteTelefono = order.cliente.telefono || 'No especificado';
+            clienteDireccion = order.cliente.direccion || 'No especificada';
+        } else {
+            // Si cliente es un string o no existe
+            clienteNombre = order.cliente || 'Cliente no especificado';
+            clienteTelefono = order.telefono || 'No especificado';
+            clienteDireccion = order.direccion || 'No especificada';
+        }
+
+        console.log('Información del cliente extraída:', {
+            nombre: clienteNombre,
+            telefono: clienteTelefono,
+            direccion: clienteDireccion
+        });
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${order.id}</td>
+            <td>${new Date(order.fecha).toLocaleString()}</td>
+            <td>
+                <div class="client-info">
+                    <strong>${clienteNombre}</strong>
+                    <div class="client-details">
+                        <small>📞 ${clienteTelefono}</small>
+                        <small>📍 ${clienteDireccion}</small>
+                    </div>
+                </div>
+            </td>
+            <td>$${parseFloat(order.total).toFixed(2)}</td>
+            <td>
+                <span class="status-badge status-${order.estado}">
+                    ${order.estado}
+                </span>
+            </td>
+            <td>
+                <button class="action-btn view-btn" onclick="showOrderDetails(${order.id})">
+                    <i class="fas fa-eye"></i> Ver
+                </button>
+                ${order.estado === 'pendiente' ? `
+                    <button class="action-btn mark-btn" onclick="updateOrderStatus(${order.id}, 'atendido')">
+                        <i class="fas fa-check"></i> Marcar atendido
+                    </button>
+                ` : ''}
+            </td>
+        `;
+        ordersList.appendChild(row);
+    });
+}
+
+// Función de utilidad para obtener el token CSRF
+function getCSRFToken() {
+    const name = 'csrftoken';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+async function updateOrderStatus(orderId, newStatus) {
+    try {
+        // Obtener el token de la sesión
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || !user.token) {
+            console.error('No hay usuario en sesión o token no encontrado');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        console.log('Enviando actualización de estado:', {
+            orderId,
+            newStatus,
+            token: user.token
+        });
+
+        const response = await fetchWithTimeout(`${API_URL}pedidos/${orderId}/status/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+            },
+            body: JSON.stringify({ estado: newStatus })
+        });
+
+        console.log('Respuesta del servidor:', response);
+
+        // Verificar si la respuesta es un error
+        if (!response || response.status === 403) {
+            console.error('Error de autenticación al actualizar estado');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        if (response.error) {
+            throw new Error(response.error);
+        }
+
+        showNotification('Estado actualizado exitosamente', 'success');
+        
+        // Recargar la lista de pedidos con el filtro actual
+        const statusFilter = document.getElementById('status-filter')?.value || 'all';
+        const searchClient = document.getElementById('search-client')?.value || '';
+        const searchPhone = document.getElementById('search-phone')?.value || '';
+        const searchAddress = document.getElementById('search-address')?.value || '';
+        
+        await loadOrders(statusFilter, searchClient, searchPhone, searchAddress);
+    } catch (error) {
+        console.error('Error al actualizar estado:', error);
+        if (error.message.includes('autenticación') || error.message.includes('no autorizado')) {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        } else {
+            showNotification(error.message || 'Error al actualizar el estado del pedido', 'error');
+        }
+    }
+}
+
+function showOrderDetails(orderId) {
+    const modal = document.getElementById('order-details-modal');
+    const content = document.getElementById('order-details-content');
+    
+    // Mostrar mensaje de carga
+    content.innerHTML = `<p>Cargando detalles del pedido #${orderId}...</p>`;
+    modal.style.display = 'block';
+    
+    // Obtener el token de la sesión
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // Obtener los detalles del pedido
+    fetchWithTimeout(`${API_URL}pedidos/${orderId}/`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${user.token}`
+        }
+    })
+    .then(data => {
+        if (!data) {
+            throw new Error('No se recibieron datos del servidor');
+        }
+        
+        // Formatear la fecha
+        const fecha = new Date(data.fecha).toLocaleString();
+        
+        // Obtener la información del cliente
+        const clienteNombre = data.cliente?.nombre || data.cliente || 'Cliente no especificado';
+        const clienteTelefono = data.cliente?.telefono || data.telefono || 'No especificado';
+        const clienteDireccion = data.cliente?.direccion || data.direccion || 'No especificada';
+        
+        // Crear el HTML para mostrar los detalles
+        let detallesHtml = `
+            <div class="order-details">
+                <h2>Detalles del Pedido #${data.id}</h2>
+                <div class="order-info">
+                    <p><strong>Fecha:</strong> ${fecha}</p>
+                    <p><strong>Cliente:</strong> ${clienteNombre}</p>
+                    <p><strong>Teléfono:</strong> ${clienteTelefono}</p>
+                    <p><strong>Dirección:</strong> ${clienteDireccion}</p>
+                    <p><strong>Estado:</strong> <span class="status-badge status-${data.estado}">${data.estado}</span></p>
+                </div>
+                <div class="order-items">
+                    <h3>Items del Pedido</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Plato</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+        
+        // Agregar cada item del pedido
+        data.detalles.forEach(detalle => {
+            detallesHtml += `
+                <tr>
+                    <td>${detalle.plato.nombre}</td>
+                    <td>${detalle.cantidad}</td>
+                    <td>$${detalle.plato.precio.toFixed(2)}</td>
+                    <td>$${detalle.subtotal.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+        
+        // Cerrar la tabla y agregar el total
+        detallesHtml += `
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="total-label">Total:</td>
+                                <td class="total-value">$${data.total.toFixed(2)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        `;
+        
+        content.innerHTML = detallesHtml;
+    })
+    .catch(error => {
+        console.error('Error al cargar detalles del pedido:', error);
+        content.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>${error.message}</p>
+            </div>
+        `;
+    });
+}
+
+// Event listeners para la página de pedidos
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si estamos en la página de pedidos
+    if (window.location.pathname.includes('orders.html')) {
+        console.log('Inicializando página de pedidos');
+        
+        // Verificar autenticación
+        if (!checkAuth()) {
+            console.log('Redirigiendo a login por falta de autenticación');
+            return;
+        }
+
+        // Mostrar nombre de usuario
+        const user = JSON.parse(localStorage.getItem('user'));
+        const userName = document.getElementById('user-name');
+        if (userName) {
+            userName.textContent = user.username;
+        }
+
+        // Event listener para el botón de logout
+        const logoutBtn = document.getElementById('logout-button');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                await logout();
+                window.location.href = 'login.html';
+            });
+        }
+
+        // Event listeners para los filtros
+        const statusFilter = document.getElementById('status-filter');
+        const searchClient = document.getElementById('search-client');
+        const searchPhone = document.getElementById('search-phone');
+        const searchAddress = document.getElementById('search-address');
+
+        const applyFilters = () => {
+            console.log('Aplicando filtros:', {
+                status: statusFilter?.value,
+                client: searchClient?.value,
+                phone: searchPhone?.value,
+                address: searchAddress?.value
+            });
+            
+            loadOrders(
+                statusFilter?.value || 'all',
+                searchClient?.value || '',
+                searchPhone?.value || '',
+                searchAddress?.value || ''
+            );
+        };
+
+        if (statusFilter) {
+            statusFilter.addEventListener('change', applyFilters);
+        }
+
+        if (searchClient) {
+            searchClient.addEventListener('input', debounce(applyFilters, 500));
+        }
+
+        if (searchPhone) {
+            searchPhone.addEventListener('input', debounce(applyFilters, 500));
+        }
+
+        if (searchAddress) {
+            searchAddress.addEventListener('input', debounce(applyFilters, 500));
+        }
+
+        // Cargar pedidos inicialmente
+        console.log('Iniciando carga de pedidos...');
+        loadOrders();
+    }
+
+    // Event listener para cerrar el modal
+    const closeModal = document.querySelector('.close-modal');
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            const modal = document.getElementById('order-details-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+});
+
+// Función de utilidad para debounce
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
