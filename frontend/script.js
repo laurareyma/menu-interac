@@ -833,42 +833,13 @@ function updateOrderSummary() {
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Iniciando inicialización...');
+    
+    // Inicializar el carrito
     handleCart();
     updateCartCount();
     displayCart();
     updateCartTotal();
-});
-
-// Event listeners para la página principal
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded - Iniciando inicialización...');
-    
-    // Event listener para el botón de carrito
-    const cartIcon = document.querySelector('.cart-icon');
-    if (cartIcon) {
-        console.log('Cart icon found');
-        cartIcon.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Cart icon clicked');
-            window.openCart();
-        });
-    } else {
-        console.warn('Cart icon not found');
-    }
-
-    // Event listener para el botón de cerrar carrito
-    const closeCartBtn = document.getElementById('close-cart');
-    if (closeCartBtn) {
-        console.log('Close cart button found');
-        closeCartBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            window.closeCart();
-        });
-    } else {
-        console.warn('Close cart button not found');
-    }
 
     // Event listener para el formulario de checkout
     const orderForm = document.getElementById('order-form');
@@ -1003,145 +974,6 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleCheckoutModal(false);
         }
     });
-
-    // Inicializar el carrito
-    updateCartCount();
-    displayCart();
-    updateCartTotal();
-});
-
-// Inicializar la aplicación cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded - Iniciando inicialización...');
-    console.log('Pathname actual:', window.location.pathname);
-    console.log('URL completa:', window.location.href);
-    
-    // Cargar el menú desde el servidor si estamos en la página principal
-    const isMainPage = window.location.pathname.includes('main.html') || 
-                      window.location.pathname === '/' || 
-                      window.location.pathname.endsWith('/') ||
-                      window.location.pathname.includes('index.html');
-    
-    console.log('¿Es página principal?', isMainPage);
-    
-    if (isMainPage) {
-        console.log('Detectada página principal, intentando cargar menú...');
-        console.log('URL actual:', window.location.href);
-        console.log('API_URL configurada:', API_URL);
-        
-        // Intentar cargar el menú
-        try {
-            loadMenu();
-        } catch (error) {
-            console.error('Error al intentar cargar el menú:', error);
-        }
-    } else {
-        console.log('No es la página principal, no se cargará el menú');
-    }
-    
-    // Inicializar el carrito desde localStorage
-    console.log('Inicializando carrito...');
-    updateCartCount();
-    displayCart();
-    updateCartTotal();
-    
-    // Event listener para mostrar/ocultar el carrito
-    const cartIcon = document.querySelector('.cart-icon');
-    if (cartIcon) {
-        cartIcon.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            window.openCart();
-        });
-    }
-    
-    // Event listener para cerrar el carrito
-    const closeCartBtn = document.getElementById('close-cart');
-    if (closeCartBtn) {
-        closeCartBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            window.closeCart();
-        });
-    }
-    
-    // Event listener para limpiar el carrito
-    const clearCartBtn = document.getElementById('clear-cart');
-    if (clearCartBtn) {
-        clearCartBtn.addEventListener('click', clearCart);
-    }
-    
-    // Event listener para los botones del carrito (aumentar, disminuir, eliminar)
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('increase')) {
-            const index = e.target.dataset.index;
-            if (index !== undefined) {
-                cartItems[index].quantity++;
-                localStorage.setItem("cart", JSON.stringify(cartItems));
-                updateCartCount();
-                updateCartTotal();
-                displayCart();
-            }
-        } else if (e.target.classList.contains('decrease')) {
-            const index = e.target.dataset.index;
-            if (index !== undefined) {
-                if (cartItems[index].quantity > 1) {
-                    cartItems[index].quantity--;
-                } else {
-                    cartItems.splice(index, 1);
-                }
-                localStorage.setItem("cart", JSON.stringify(cartItems));
-                updateCartCount();
-                updateCartTotal();
-                displayCart();
-            }
-        } else if (e.target.classList.contains('remove')) {
-            const index = e.target.dataset.index;
-            if (index !== undefined) {
-                cartItems.splice(index, 1);
-                localStorage.setItem("cart", JSON.stringify(cartItems));
-                updateCartCount();
-                updateCartTotal();
-                displayCart();
-            }
-        }
-    });
-    
-    // Event listener para el botón de checkout
-    const checkoutPageBtn = document.querySelector('.checkout');
-    if (checkoutPageBtn) {
-        checkoutPageBtn.addEventListener('click', checkout);
-    }
-    
-    // Event listener para limpiar carrito en la página de carrito
-    const clearCartPageBtn = document.querySelector('.limpiar_ca');
-    if (clearCartPageBtn) {
-        clearCartPageBtn.addEventListener('click', clearCart);
-    }
-    
-    // Event listeners para links de navegación suave
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = this.getAttribute('href').substring(1);
-            scrollToSection(target);
-        });
-    });
-
-    const loginButton = document.getElementById('login-button');
-    if (loginButton) {
-        loginButton.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            await login(username, password);
-        });
-    }
-
-    const fetchOrdersButton = document.getElementById('fetch-orders-button');
-    if (fetchOrdersButton) {
-        fetchOrdersButton.addEventListener('click', fetchOrderData);
-    }
 });
 
 // Funciones de autenticación
