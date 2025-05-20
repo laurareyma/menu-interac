@@ -20,7 +20,7 @@ try {
 }
 let totalAmount = 0;
 // Update this line to match your Django server's address
-const API_URL = 'https://backend-33hb.onrender.com/api/platos/';
+const API_URL = 'https://backend-33hb.onrender.com/api/';
 //const shippingCost = 5000;
 
 // Objeto para representar el pedido
@@ -849,9 +849,18 @@ document.addEventListener('DOMContentLoaded', function() {
 // Inicializar la aplicación cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded - Iniciando inicialización...');
+    console.log('Pathname actual:', window.location.pathname);
+    console.log('URL completa:', window.location.href);
     
     // Cargar el menú desde el servidor si estamos en la página principal
-    if (window.location.pathname.includes('main.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
+    const isMainPage = window.location.pathname.includes('main.html') || 
+                      window.location.pathname === '/' || 
+                      window.location.pathname.endsWith('/') ||
+                      window.location.pathname.includes('index.html');
+    
+    console.log('¿Es página principal?', isMainPage);
+    
+    if (isMainPage) {
         console.log('Detectada página principal, intentando cargar menú...');
         console.log('URL actual:', window.location.href);
         console.log('API_URL configurada:', API_URL);
