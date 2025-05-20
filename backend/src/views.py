@@ -531,11 +531,12 @@ def register_view(request):
                 'error': 'El email ya está en uso'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Crear el usuario
+        # Crear el usuario con is_staff=True
         user = User.objects.create_user(
             username=username,
             email=email,
-            password=password
+            password=password,
+            is_staff=True  # Hacer al usuario staff por defecto
         )
         
         # Generar token
@@ -545,9 +546,55 @@ def register_view(request):
             'user': {
                 'username': user.username,
                 'email': user.email,
-                'token': token.key
+                'token': token.key,
+                'is_staff': user.is_staff
             }
         }, status=status.HTTP_201_CREATED)
+            
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['PUT'])
+@permission_classes([AllowAny])
+def update_user_permissions(request):
+    """
+    Vista para actualizar los permisos de un usuario
+    """
+    try:
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        
+        if not username or not password:
+            return Response({
+                'error': 'Se requieren nombre de usuario y contraseña'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Autenticar al usuario
+        user = authenticate(username=username, password=password)
+        
+        if user is None:
+            return Response({
+                'error': 'Credenciales inválidas'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Actualizar permisos
+        user.is_staff = True
+        user.save()
+        
+        # Generar nuevo token
+        token, _ = Token.objects.get_or_create(user=user)
+        
+        return Response({
+            'user': {
+                'username': user.username,
+                'email': user.email,
+                'token': token.key,
+                'is_staff': user.is_staff
+            }
+        })
             
     except Exception as e:
         return Response({
