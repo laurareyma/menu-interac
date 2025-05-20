@@ -287,6 +287,8 @@ async function loadMenu() {
 
 // Función para mostrar el menú en la página
 function displayMenu(menuData) {
+    console.log('Iniciando displayMenu con datos:', menuData);
+    
     // Obtener las categorías del menú
     const categories = {
         'entradas': document.querySelector('#entradas .menu-items'),
@@ -295,9 +297,21 @@ function displayMenu(menuData) {
         'postres': document.querySelector('#postres .menu-items')
     };
     
+    // Verificar que se encontraron los contenedores
+    Object.entries(categories).forEach(([category, container]) => {
+        if (!container) {
+            console.error(`No se encontró el contenedor para la categoría: ${category}`);
+        } else {
+            console.log(`Contenedor encontrado para ${category}`);
+        }
+    });
+    
     // Limpiar los contenedores
     Object.values(categories).forEach(container => {
-        if (container) container.innerHTML = '';
+        if (container) {
+            container.innerHTML = '';
+            console.log('Contenedor limpiado');
+        }
     });
     
     // Verificar si menuData es un array
@@ -306,8 +320,11 @@ function displayMenu(menuData) {
         return;
     }
     
+    console.log('Procesando', menuData.length, 'platos');
+    
     // Llenar cada categoría con sus productos
     menuData.forEach(item => {
+        console.log('Procesando plato:', item);
         const category = categories[item.categoria ? item.categoria.toLowerCase() : 'principales'];
         if (category) {
             const menuItem = document.createElement('div');
@@ -365,8 +382,13 @@ function displayMenu(menuData) {
             });
             
             category.appendChild(menuItem);
+            console.log('Plato agregado a la categoría:', item.categoria);
+        } else {
+            console.warn('No se encontró categoría para el plato:', item);
         }
     });
+    
+    console.log('DisplayMenu completado');
 }
 
 // Función para agregar un producto al carrito
@@ -857,6 +879,12 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCartCount();
     displayCart();
     updateCartTotal();
+
+    // Cargar el menú
+    console.log('Iniciando carga del menú...');
+    loadMenu().catch(error => {
+        console.error('Error al cargar el menú:', error);
+    });
 
     // Event listener para el formulario de checkout
     const orderForm = document.getElementById('order-form');
