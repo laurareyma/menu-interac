@@ -7,7 +7,6 @@
      <link rel="stylesheet" href="stylev2.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="styles/cart.css">
-    <script src="script.js"></script>
 </head>
 <body>
     <header>
@@ -38,6 +37,31 @@
                 <a href="#menu" class="btn">Nuestro Menú</a>
             </div>
         </section>
+
+        <!-- Carrito de compras -->
+        <div class="cart-overlay"></div>
+        <div class="cart-container">
+            <div class="cart-header">
+                <h2>Tu Carrito</h2>
+                <button id="close-cart" class="close-cart" type="button">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="cart-content" id="cart-items">
+                <!-- Los items del carrito se generarán dinámicamente aquí -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+                <div class="cart-actions">
+                    <button id="clear-cart" class="clear-btn">Vaciar Carrito</button>
+                    <button id="checkout" class="checkout-btn">Realizar Pedido</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Loading indicator -->
         <div id="loading-indicator" class="loading-indicator" style="display: none;">Cargando menú...</div>
 
@@ -78,24 +102,6 @@
             </div>
         </section>
 
-        <!-- Carrito de compras -->
-        <div id="shopping-cart" class="cart-container">
-            <div class="cart-header">
-                <h3>Tu Carrito</h3>
-                <button id="close-cart" class="close-cart-btn">x</button>
-            </div>
-            <div id="cart-items" class="cart-items">
-                <!-- Los items del carrito se generarán dinámicamente aquí -->
-            </div>
-            <div class="cart-footer">
-                <div class="cart-total">
-                    Total: <span id="cart-total">$0.00</span>
-                </div>
-                <button id="checkout" class="checkout-btn">Realizar Pedido</button>
-                <button id="clear-cart" class="clear-btn">Vaciar Carrito</button>
-            </div>
-        </div>
-
         <!-- Sección de equipo desarrollador -->
         <section id="equipo" class="team-section">
             <h2>Nuestro Equipo Desarrollador</h2>
@@ -114,86 +120,53 @@
         </section>
 
         <!-- Modal de checkout -->
-    <div id="checkout-modal" class="modal-overlay" style="display: none;">
-        <div class="checkout-form">
-            <h2>Finalizar Pedido</h2>
-            <button id="close-modal" class="close-modal">×</button>
-            
-            <div class="form-group">
-                <label for="customer-name">Nombre completo:</label>
-                <input type="text" id="customer-name" required>
+        <div id="checkout-modal" class="modal-overlay">
+            <div class="checkout-form">
+                <button id="close-modal" class="close-modal">&times;</button>
+                <h2>Finalizar Pedido</h2>
+                <form id="order-form">
+                    <div class="form-group">
+                        <label for="customer-name">Nombre completo:</label>
+                        <input type="text" id="customer-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-phone">Teléfono:</label>
+                        <input type="tel" id="customer-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-address">Dirección de entrega:</label>
+                        <textarea id="customer-address" required></textarea>
+                    </div>
+                    <div class="order-summary">
+                        <h3>Resumen del pedido</h3>
+                        <div id="order-items"></div>
+                        <div class="order-total">
+                            Total: <span id="order-total">$0.00</span>
+                        </div>
+                    </div>
+                    <button type="submit" id="submit-order">Confirmar Pedido</button>
+                </form>
             </div>
-            
-            <div class="form-group">
-                <label for="customer-phone">Teléfono:</label>
-                <input type="tel" id="customer-phone" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="customer-address">Dirección de entrega:</label>
-                <textarea id="customer-address" required></textarea>
-            </div>
-            
-            <div class="order-summary">
-                <h3>Resumen del pedido</h3>
-                <div id="order-items"></div>
-                <div class="order-total">
-                    Total: <span id="order-total">$0.00</span>
-                </div>
-            </div>
-            
-            <button id="submit-order">Confirmar Pedido</button>
         </div>
-    </div>
 
-    <!-- Formulario de inicio de sesión -->
-    <div id="login-form" style="display:none;">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username"><br><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password"><br><br>
-        <button id="login-button">Login</button>
-    </div>
+        <!-- Formulario de inicio de sesión -->
+        <div id="login-form" style="display:none;">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username"><br><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password"><br><br>
+            <button id="login-button">Login</button>
+        </div>
 
-    <!-- <button id="fetch-orders-button">Fetch Orders</button> -->
-    <!-- <div id="order-list"></div> -->
+        <!-- <button id="fetch-orders-button">Fetch Orders</button> -->
+        <!-- <div id="order-list"></div> -->
     </main>
 
     <footer>
         <p>&copy; 2025 Veggie House. Restaurante Vegano. Todos los derechos reservados.</p>
     </footer>
 
-    <script>
-    document.addEventListener('click', function(event) {
-        const modal = document.getElementById('checkout-modal');
-        const modalContent = document.querySelector('.modal-content');
-        if (!modal || !modalContent) return;
-
-        // Si el modal está visible y el clic fue fuera del contenido del modal
-        if (
-            modal.style.display === 'flex' &&
-            !modalContent.contains(event.target) &&
-            event.target.id !== 'checkout'
-        ) {
-            toggleCheckoutModal(false);
-        }
-    });
-
-    const closeModalBtn = document.getElementById('close-modal');
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleCheckoutModal(false);
-        });
-    }
-
-    const modalContent = document.querySelector('.modal-content');
-    if (modalContent) {
-        modalContent.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    }
-    </script>
+    <!-- Scripts -->
+    <script src="script.js"></script>
 </body>
 </html>

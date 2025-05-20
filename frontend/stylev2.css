@@ -88,7 +88,6 @@ nav {
     list-style: none;
 }
 
-
 .cart-icon {
     position: relative;
     cursor: pointer;
@@ -277,12 +276,12 @@ nav {
     position: fixed;
     top: 0;
     right: -400px;
-    width: 350px;
+    width: 400px;
     height: 100vh;
     background-color: var(--white);
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
     z-index: 1100;
-    transition: var(--transition);
+    transition: right 0.3s ease-in-out;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -290,6 +289,24 @@ nav {
 
 .cart-container.active {
     right: 0;
+}
+
+.cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.cart-overlay.active {
+    opacity: 1;
+    visibility: visible;
 }
 
 .cart-header {
@@ -457,7 +474,7 @@ footer {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 1200;
@@ -470,6 +487,8 @@ footer {
     border-radius: 10px;
     width: 90%;
     max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
     position: relative;
 }
 
@@ -500,6 +519,7 @@ footer {
 
 .form-group textarea {
     min-height: 100px;
+    resize: vertical;
 }
 
 #submit-order {
@@ -526,6 +546,38 @@ footer {
     border: none;
     font-size: 1.2rem;
     cursor: pointer;
+    color: #666;
+}
+
+#close-modal:hover {
+    color: #333;
+}
+
+.order-summary {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.order-summary h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.order-total {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid #eee;
+    font-weight: bold;
+    text-align: right;
 }
 
 /* Error message */
