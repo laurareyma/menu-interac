@@ -727,18 +727,25 @@ function clearCart() {
 
 // Función para manejar el carrito
 function handleCart() {
+    console.log('Inicializando carrito...');
     const cart = document.querySelector('.cart-container');
     const overlay = document.querySelector('.cart-overlay');
     const cartIcon = document.querySelector('.cart-icon');
     const closeCartBtn = document.getElementById('close-cart');
 
     if (!cart || !overlay) {
-        console.error('Elementos del carrito no encontrados');
+        console.error('Elementos del carrito no encontrados:', {
+            cart: !!cart,
+            overlay: !!overlay
+        });
         return;
     }
 
+    console.log('Elementos del carrito encontrados');
+
     // Función para abrir el carrito
     function openCart() {
+        console.log('Abriendo carrito...');
         cart.classList.add('active');
         overlay.classList.add('active');
         displayCart();
@@ -747,12 +754,14 @@ function handleCart() {
 
     // Función para cerrar el carrito
     function closeCart() {
+        console.log('Cerrando carrito...');
         cart.classList.remove('active');
         overlay.classList.remove('active');
     }
 
     // Event listeners
     if (cartIcon) {
+        console.log('Configurando event listener para el ícono del carrito');
         cartIcon.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -761,6 +770,7 @@ function handleCart() {
     }
 
     if (closeCartBtn) {
+        console.log('Configurando event listener para el botón de cerrar carrito');
         closeCartBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -769,6 +779,7 @@ function handleCart() {
     }
 
     if (overlay) {
+        console.log('Configurando event listener para el overlay');
         overlay.addEventListener('click', function(e) {
             if (e.target === overlay) {
                 closeCart();
@@ -834,6 +845,12 @@ function updateOrderSummary() {
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded - Iniciando inicialización...');
+    
+    // Asegurarse de que el modal esté cerrado al inicio
+    const modal = document.getElementById('checkout-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
     
     // Inicializar el carrito
     handleCart();
