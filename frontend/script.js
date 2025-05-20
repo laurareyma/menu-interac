@@ -20,7 +20,7 @@ try {
 }
 let totalAmount = 0;
 // Update this line to match your Django server's address
-const API_URL = 'http://localhost:8000/api/';
+const API_URL = 'https://backend-33hb.onrender.com/api/';
 //const shippingCost = 5000;
 
 // Objeto para representar el pedido
