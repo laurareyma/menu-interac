@@ -732,6 +732,11 @@ function handleCart() {
     const cartIcon = document.querySelector('.cart-icon');
     const closeCartBtn = document.getElementById('close-cart');
 
+    if (!cart || !overlay) {
+        console.error('Elementos del carrito no encontrados');
+        return;
+    }
+
     // Función para abrir el carrito
     function openCart() {
         cart.classList.add('active');
@@ -838,6 +843,33 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded - Iniciando inicialización...');
     
+    // Event listener para el botón de carrito
+    const cartIcon = document.querySelector('.cart-icon');
+    if (cartIcon) {
+        console.log('Cart icon found');
+        cartIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Cart icon clicked');
+            window.openCart();
+        });
+    } else {
+        console.warn('Cart icon not found');
+    }
+
+    // Event listener para el botón de cerrar carrito
+    const closeCartBtn = document.getElementById('close-cart');
+    if (closeCartBtn) {
+        console.log('Close cart button found');
+        closeCartBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.closeCart();
+        });
+    } else {
+        console.warn('Close cart button not found');
+    }
+
     // Event listener para el formulario de checkout
     const orderForm = document.getElementById('order-form');
     if (orderForm) {
