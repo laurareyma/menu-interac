@@ -133,7 +133,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://*.github.io",  # Allow GitHub Pages domains
+    "https://laurareyma.github.io",
+    "https://*.github.io",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -159,6 +160,11 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
+CORS_EXPOSE_HEADERS = [
+    'access-control-allow-origin',
+    'access-control-allow-credentials',
+]
+
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
@@ -167,7 +173,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://backend-33hb.onrender.com",
-    "https://*.github.io",  # Allow GitHub Pages domains
+    "https://laurareyma.github.io",
+    "https://*.github.io",
 ]
 
 # Configuración de REST Framework
