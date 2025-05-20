@@ -95,7 +95,7 @@ async function fetchWithTimeout(url, options = {}) {
             signal: controller.signal,
             headers: headers,
             mode: 'cors',
-            credentials: 'omit' // Cambiado a 'omit' para evitar problemas con CORS
+            credentials: 'omit'
         });
 
         clearTimeout(timeoutId);
@@ -205,16 +205,29 @@ async function loadMenu() {
         const apiUrl = `${API_URL}platos/`;
         console.log('URL de la API:', apiUrl);
         
-        // Intentar la petición usando fetchWithTimeout
+        // Intentar la petición usando fetch directamente primero
         console.log('Realizando petición al servidor...');
-        const responseData = await fetchWithTimeout(apiUrl, {
+        const response = await fetch(apiUrl, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
-            }
+            },
+            mode: 'cors',
+            credentials: 'omit'
         });
         
+        console.log('Respuesta recibida:', {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries())
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
+        }
+
+        const responseData = await response.json();
         console.log('Datos recibidos:', responseData);
         
         if (!responseData || !responseData.data) {
