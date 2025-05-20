@@ -9,10 +9,19 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
 
 import os
 from django.core.wsgi import get_wsgi_application
-from django.contrib.auth.models import User
 from django.core.management import call_command
+import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+
+# Crear aplicación WSGI
+application = get_wsgi_application()
+
+# Inicializar Django
+django.setup()
+
+# Importar modelos después de que Django esté configurado
+from django.contrib.auth.models import User
 
 # Crear superusuario si no existe
 def create_superuser():
@@ -34,9 +43,6 @@ def load_initial_data():
         print("Datos iniciales cargados exitosamente")
     except Exception as e:
         print(f"Error al cargar datos iniciales: {str(e)}")
-
-# Crear aplicación WSGI
-application = get_wsgi_application()
 
 # Ejecutar tareas de inicialización
 try:
