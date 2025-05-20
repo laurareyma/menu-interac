@@ -568,11 +568,18 @@ async function submitOrder(orderData) {
             throw new Error('No hay platos en el pedido');
         }
 
+        // Calcular el total del pedido
+        const total = orderData.platos.reduce((sum, item) => {
+            const plato = cartItems.find(cartItem => cartItem.id === item.plato_id);
+            return sum + (plato ? parseFloat(plato.price) * item.cantidad : 0);
+        }, 0);
+
         // Formatear los datos del pedido
         const formattedOrder = {
             cliente: orderData.cliente,
             telefono: orderData.telefono,
             direccion: orderData.direccion,
+            total: total,
             platos: orderData.platos.map(item => ({
                 plato_id: parseInt(item.plato_id),
                 cantidad: parseInt(item.cantidad)
@@ -650,12 +657,18 @@ async function checkout() {
             showNotification(validationErrors.join('. '), 'error');
             return;
         }
+
+        // Calcular el total del pedido
+        const total = cartItems.reduce((sum, item) => {
+            return sum + (parseFloat(item.price) * item.quantity);
+        }, 0);
         
         // Preparar el objeto de pedido
         const orderData = {
             cliente: customerName,
             telefono: customerPhone,
             direccion: customerAddress,
+            total: total,
             platos: cartItems.map(item => ({
                 plato_id: parseInt(item.id),
                 cantidad: parseInt(item.quantity)
@@ -686,8 +699,8 @@ async function checkout() {
                     finalSummary.innerHTML = `
                         <h2>Resumen Final de Compra</h2>
                         <p>Productos: ${cartItems.reduce((total, item) => total + item.quantity, 0)}</p>
-                        <p>Total producto: $${totalAmount.toLocaleString()}</p>
-                        <p>Total: $${(totalAmount).toLocaleString()}</p>
+                        <p>Total producto: $${total.toLocaleString()}</p>
+                        <p>Total: $${total.toLocaleString()}</p>
                     `;
                     cartSummary.appendChild(finalSummary);
                 }
@@ -787,16 +800,27 @@ function updateOrderSummary() {
         orderItemsContainer.appendChild(itemElement);
     });
     
-    orderTotalElement.textContent = `$${totalAmount.toFixed(2)}`;
+    const total = cartItems.reduce((sum, item) => {
+        return sum + (parseFloat(item.price || item.precio) * item.quantity);
+    }, 0);
+    
+    orderTotalElement.textContent = `$${total.toFixed(2)}`;
     console.log('Order summary updated');
 }
 
-// Event listener para el botón de checkout
+// Event listeners para la página principal
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded');
+    console.log('DOM Content Loaded - Iniciando inicialización...');
     
     // Solo buscar el botón de checkout si estamos en la página principal o carrito
-    if (window.location.pathname.includes('main.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
+    if (window.location.pathname.includes('main.html') || 
+        window.location.pathname === '/' || 
+        window.location.pathname.endsWith('/') ||
+        window.location.pathname.includes('index.html')) {
+        
+        console.log('Página principal detectada, configurando event listeners...');
+        
+        // Event listener para el botón de checkout
         const checkoutBtn = document.getElementById('checkout');
         if (checkoutBtn) {
             console.log('Checkout button found');
@@ -806,6 +830,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Checkout button clicked');
                 toggleCheckoutModal(true);
             });
+        } else {
+            console.warn('Checkout button not found');
         }
 
         // Event listener para cerrar el modal
@@ -818,6 +844,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Close modal button clicked');
                 toggleCheckoutModal(false);
             });
+        } else {
+            console.warn('Close modal button not found');
         }
 
         // Event listener para enviar el pedido
@@ -830,6 +858,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Submit order button clicked');
                 checkout();
             });
+        } else {
+            console.warn('Submit order button not found');
         }
 
         // Event listener para cerrar el modal al hacer clic fuera
@@ -850,6 +880,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 toggleCheckoutModal(false);
             }
         });
+
+        // Event listener para el botón de carrito
+        const cartIcon = document.querySelector('.cart-icon');
+        if (cartIcon) {
+            cartIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Cart icon clicked');
+                toggleCart();
+            });
+        }
+
+        // Event listener para el botón de cerrar carrito
+        const closeCartBtn = document.getElementById('close-cart');
+        if (closeCartBtn) {
+            closeCartBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Close cart button clicked');
+                toggleCart();
+            });
+        }
     }
 });
 
