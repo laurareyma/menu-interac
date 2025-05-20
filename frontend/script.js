@@ -189,17 +189,22 @@ function showNotification(message, type = 'error') {
 // Función para cargar el menú desde el servidor usando fetch
 async function loadMenu() {
     const menuContainers = document.querySelectorAll('.menu-items');
+    console.log('Iniciando carga del menú...');
     
     try {
         // Mostrar indicador de carga
         const loadingIndicator = document.getElementById('loading-indicator');
         if (loadingIndicator) {
             loadingIndicator.style.display = 'block';
+            console.log('Indicador de carga mostrado');
         }
 
-        console.log('Intentando cargar el menú desde:', `${API_URL}platos/`);
+        const apiUrl = `${API_URL}platos/`;
+        console.log('URL de la API:', apiUrl);
         
-        const response = await fetch(`${API_URL}platos/`, {
+        // Intentar la petición
+        console.log('Realizando petición al servidor...');
+        const response = await fetch(apiUrl, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -208,33 +213,45 @@ async function loadMenu() {
             mode: 'cors'
         });
         
-        console.log('Respuesta del servidor:', {
+        console.log('Respuesta recibida:', {
             status: response.status,
-            statusText: response.statusText
+            statusText: response.statusText,
+            ok: response.ok
         });
         
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error en la respuesta:', {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText
+            });
             throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
         }
         
+        console.log('Procesando respuesta JSON...');
         const responseData = await response.json();
         console.log('Datos recibidos:', responseData);
         
         if (!responseData || !responseData.data) {
+            console.error('Formato de respuesta inválido:', responseData);
             throw new Error('Formato de respuesta inválido');
         }
         
         const menuData = responseData.data;
+        console.log('Datos del menú:', menuData);
         
         if (!Array.isArray(menuData)) {
+            console.error('Los datos no son un array:', menuData);
             throw new Error('Los datos recibidos no son un array');
         }
         
         if (menuData.length === 0) {
+            console.warn('El menú está vacío');
             showNotification('No hay platos disponibles en el menú', 'warning');
         }
 
-        // Mostrar el menú en la página
+        console.log('Mostrando menú en la página...');
         displayMenu(menuData);
         showNotification('Menú cargado exitosamente', 'success');
 
@@ -251,6 +268,7 @@ async function loadMenu() {
             errorMessage += error.message;
         }
 
+        console.error('Mensaje de error:', errorMessage);
         showNotification(errorMessage, 'error');
 
         // Mostrar mensaje de error en cada contenedor de menú
@@ -263,6 +281,7 @@ async function loadMenu() {
         const loadingIndicator = document.getElementById('loading-indicator');
         if (loadingIndicator) {
             loadingIndicator.style.display = 'none';
+            console.log('Indicador de carga ocultado');
         }
     }
 }
