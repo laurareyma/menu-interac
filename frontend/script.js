@@ -559,52 +559,60 @@ async function submitOrder(orderData) {
     try {
         console.log('Enviando pedido al servidor:', orderData);
 
+        // Validar que los datos del pedido sean correctos
+        if (!orderData.cliente || !orderData.telefono || !orderData.direccion) {
+            throw new Error('Faltan datos del cliente');
+        }
+
+        if (!orderData.platos || !Array.isArray(orderData.platos) || orderData.platos.length === 0) {
+            throw new Error('No hay platos en el pedido');
+        }
+
+        // Formatear los datos del pedido
+        const formattedOrder = {
+            cliente: orderData.cliente,
+            telefono: orderData.telefono,
+            direccion: orderData.direccion,
+            platos: orderData.platos.map(item => ({
+                plato_id: parseInt(item.plato_id),
+                cantidad: parseInt(item.cantidad)
+            }))
+        };
+
+        console.log('Pedido formateado:', formattedOrder);
+
         const response = await fetch(`${API_URL}pedidos/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                cliente: orderData.cliente,
-                telefono: orderData.telefono,
-                direccion: orderData.direccion,
-                platos: orderData.platos.map(item => ({
-                    plato_id: item.plato_id,
-                    cantidad: item.cantidad
-                }))
-            }),
+            body: JSON.stringify(formattedOrder),
             mode: 'cors',
-            credentials: 'omit' // Cambiado a 'omit' para no enviar credenciales
+            credentials: 'omit'
         });
 
         console.log('Respuesta del servidor:', {
             status: response.status,
             statusText: response.statusText
         });
-        
-        let responseData;
-        try {
-            responseData = await response.json();
-            console.log('Datos de respuesta:', responseData);
-        } catch (e) {
-            console.error('Error al procesar la respuesta:', e);
-            throw new Error('Error al procesar la respuesta del servidor: ' + e.message);
-        }
 
         if (!response.ok) {
-            throw new Error(responseData?.error || responseData?.detail || `Error del servidor: ${response.status} ${response.statusText}`);
+            const errorData = await response.json();
+            console.error('Error del servidor:', errorData);
+            throw new Error(errorData.detail || errorData.error || `Error del servidor: ${response.status} ${response.statusText}`);
         }
 
+        const responseData = await response.json();
+        console.log('Datos de respuesta:', responseData);
+
         if (!responseData || !responseData.id) {
-            console.error('Respuesta inválida:', responseData);
             throw new Error('Respuesta inválida del servidor: No se recibió un ID de pedido');
         }
 
         return { success: true, orderId: responseData.id };
     } catch (error) {
         console.error('Error al enviar el pedido:', error);
-        console.error('Detailed error:', error.message, error.stack);
         throw new Error(error.message || 'No se pudo procesar el pedido. Por favor, intenta nuevamente.');
     }
 }
@@ -619,6 +627,12 @@ async function checkout() {
                             document.getElementById('phone')?.value?.trim() || '';
         const customerAddress = document.getElementById('customer-address')?.value?.trim() || 
                                 document.getElementById('apartment')?.value?.trim() || '';
+        
+        console.log('Datos del cliente:', {
+            nombre: customerName,
+            telefono: customerPhone,
+            direccion: customerAddress
+        });
         
         // Validar que haya productos y datos de cliente
         if (cartItems.length === 0) {
@@ -637,7 +651,7 @@ async function checkout() {
             return;
         }
         
-        // Preparar el objeto de pedido en el formato que espera el backend
+        // Preparar el objeto de pedido
         const orderData = {
             cliente: customerName,
             telefono: customerPhone,
