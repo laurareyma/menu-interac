@@ -527,6 +527,37 @@ function displayCart() {
                     </div>
                 `;
                 cartContainer.appendChild(itemElement);
+
+                // Add event listeners for the buttons
+                const decreaseBtn = itemElement.querySelector('.decrease');
+                const increaseBtn = itemElement.querySelector('.increase');
+                const removeBtn = itemElement.querySelector('.remove');
+
+                decreaseBtn.addEventListener('click', () => {
+                    if (cartItems[index].quantity > 1) {
+                        cartItems[index].quantity--;
+                        localStorage.setItem("cart", JSON.stringify(cartItems));
+                        updateCartCount();
+                        updateCartTotal();
+                        displayCart();
+                    }
+                });
+
+                increaseBtn.addEventListener('click', () => {
+                    cartItems[index].quantity++;
+                    localStorage.setItem("cart", JSON.stringify(cartItems));
+                    updateCartCount();
+                    updateCartTotal();
+                    displayCart();
+                });
+
+                removeBtn.addEventListener('click', () => {
+                    cartItems.splice(index, 1);
+                    localStorage.setItem("cart", JSON.stringify(cartItems));
+                    updateCartCount();
+                    updateCartTotal();
+                    displayCart();
+                });
             });
         }
     }
@@ -571,6 +602,37 @@ function displayCart() {
                     <button class="remove" data-index="${index}">Eliminar</button>
                 `;
                 productList.appendChild(itemElement);
+
+                // Add event listeners for the buttons
+                const decreaseBtn = itemElement.querySelector('.decrease');
+                const increaseBtn = itemElement.querySelector('.increase');
+                const removeBtn = itemElement.querySelector('.remove');
+
+                decreaseBtn.addEventListener('click', () => {
+                    if (cartItems[index].quantity > 1) {
+                        cartItems[index].quantity--;
+                        localStorage.setItem("cart", JSON.stringify(cartItems));
+                        updateCartCount();
+                        updateCartTotal();
+                        displayCart();
+                    }
+                });
+
+                increaseBtn.addEventListener('click', () => {
+                    cartItems[index].quantity++;
+                    localStorage.setItem("cart", JSON.stringify(cartItems));
+                    updateCartCount();
+                    updateCartTotal();
+                    displayCart();
+                });
+
+                removeBtn.addEventListener('click', () => {
+                    cartItems.splice(index, 1);
+                    localStorage.setItem("cart", JSON.stringify(cartItems));
+                    updateCartCount();
+                    updateCartTotal();
+                    displayCart();
+                });
             });
         }
     }
