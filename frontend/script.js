@@ -1048,13 +1048,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener para mostrar/ocultar el carrito
     const cartIcon = document.querySelector('.cart-icon');
     if (cartIcon) {
-        cartIcon.addEventListener('click', toggleCart);
+        cartIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.openCart();
+        });
     }
     
     // Event listener para cerrar el carrito
     const closeCartBtn = document.getElementById('close-cart');
     if (closeCartBtn) {
-        closeCartBtn.addEventListener('click', toggleCart);
+        closeCartBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.closeCart();
+        });
     }
     
     // Event listener para limpiar el carrito
