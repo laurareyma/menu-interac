@@ -20,7 +20,7 @@ try {
 }
 let totalAmount = 0;
 // Update this line to match your Django server's address
-const API_URL = 'https://backend-33hb.onrender.com/api/';
+const API_URL = 'https://backend-33hb.onrender.com/api/platos/';
 //const shippingCost = 5000;
 
 // Objeto para representar el pedido
@@ -188,8 +188,9 @@ function showNotification(message, type = 'error') {
 
 // Función para cargar el menú desde el servidor usando fetch
 async function loadMenu() {
+    console.log('=== INICIO DE LOADMENU ===');
     const menuContainers = document.querySelectorAll('.menu-items');
-    console.log('Iniciando carga del menú...');
+    console.log('Contenedores de menú encontrados:', menuContainers.length);
     
     try {
         // Mostrar indicador de carga
@@ -197,6 +198,8 @@ async function loadMenu() {
         if (loadingIndicator) {
             loadingIndicator.style.display = 'block';
             console.log('Indicador de carga mostrado');
+        } else {
+            console.warn('No se encontró el indicador de carga');
         }
 
         const apiUrl = `${API_URL}platos/`;
@@ -216,7 +219,8 @@ async function loadMenu() {
         console.log('Respuesta recibida:', {
             status: response.status,
             statusText: response.statusText,
-            ok: response.ok
+            ok: response.ok,
+            headers: Object.fromEntries(response.headers.entries())
         });
         
         if (!response.ok) {
@@ -257,6 +261,7 @@ async function loadMenu() {
 
     } catch (error) {
         console.error('Error al cargar el menú:', error);
+        console.error('Stack trace:', error.stack);
         
         let errorMessage = 'Error al cargar el menú. ';
         
@@ -277,6 +282,7 @@ async function loadMenu() {
         });
 
     } finally {
+        console.log('=== FIN DE LOADMENU ===');
         // Ocultar indicador de carga
         const loadingIndicator = document.getElementById('loading-indicator');
         if (loadingIndicator) {
@@ -842,12 +848,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Inicializar la aplicación cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Iniciando inicialización...');
+    
     // Cargar el menú desde el servidor si estamos en la página principal
     if (window.location.pathname.includes('main.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
-        loadMenu();
+        console.log('Detectada página principal, intentando cargar menú...');
+        console.log('URL actual:', window.location.href);
+        console.log('API_URL configurada:', API_URL);
+        
+        // Intentar cargar el menú
+        try {
+            loadMenu();
+        } catch (error) {
+            console.error('Error al intentar cargar el menú:', error);
+        }
+    } else {
+        console.log('No es la página principal, no se cargará el menú');
     }
     
     // Inicializar el carrito desde localStorage
+    console.log('Inicializando carrito...');
     updateCartCount();
     displayCart();
     updateCartTotal();
