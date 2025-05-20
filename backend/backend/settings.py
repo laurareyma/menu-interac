@@ -201,16 +201,23 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Configuración de WhiteNoise para servir archivos estáticos
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Configuración de seguridad para desarrollo
+if DEBUG:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+else:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Security settings
-SECURE_SSL_REDIRECT = False  # Disable SSL redirect for development
-SESSION_COOKIE_SECURE = False  # Disable secure cookies for development
-CSRF_COOKIE_SECURE = False  # Disable secure CSRF cookies for development
-CSRF_COOKIE_HTTPONLY = True
 
 # Configuración de logging
 LOGGING = {

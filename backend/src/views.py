@@ -26,6 +26,8 @@ class PlatoViewSet(viewsets.ModelViewSet):
     serializer_class = PlatoSerializer
 
 @csrf_exempt
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def obtener_platos(request):
     print("\n=== INICIO DE LA PETICIÓN ===")
     print(f"URL: {request.build_absolute_uri()}")
@@ -69,26 +71,12 @@ def obtener_platos(request):
             print("ADVERTENCIA: La lista de platos está vacía")
             return JsonResponse({'data': []}, status=200)
         
-        response = JsonResponse({'data': platos_list})
-        print(f"Respuesta: {response.content}")
-        return response
-            
+        return JsonResponse({'data': platos_list}, status=200)
+        
     except Exception as e:
-        print(f"\n=== ERROR ENCONTRADO ===")
-        print(f"Tipo de error: {type(e)}")
-        print(f"Mensaje de error: {str(e)}")
-        print(f"Traceback completo:\n{traceback.format_exc()}")
-        return JsonResponse(
-            {
-                "error": "Error inesperado",
-                "tipo": str(type(e)),
-                "mensaje": str(e),
-                "detalle": traceback.format_exc()
-            },
-            status=500
-        )
-    finally:
-        print("=== FIN DE LA PETICIÓN ===\n")
+        print(f"Error en obtener_platos: {str(e)}")
+        print(f"Traceback: {traceback.format_exc()}")
+        return JsonResponse({'error': str(e)}, status=500)
 
 @api_view(['GET'])
 def plato_list(request):

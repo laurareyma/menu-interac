@@ -5,9 +5,9 @@
         "fields": {
             "nombre": "Tostadas de Aguacate",
             "categoria": "entradas",
-            "descripcion": "Pan integral, crema vegetal y aguacate",
+            "descripcion": "Rebanadas de pan artesanal tostado, cubiertas con aguacate cremoso, un toque de limón, sal marina y semillas tostadas. Un desayuno o snack lleno de grasas saludables y sabor natural, perfecto para empezar el día con energía.",
             "precio": 10000.00,
-            "imagen": "static/Assets/orden-8.png"
+            "imagen": "static/Assets/orden-6.png"
         }
     },
     {

@@ -199,100 +199,39 @@ async function loadMenu() {
 
         console.log('Intentando cargar el menú desde:', `${API_URL}platos/`);
         
-        // Verificar si el servidor está disponible
-        try {
-            console.log('Realizando prueba de conexión...');
-            const testResponse = await fetch(`${API_URL}platos/`, {
-                method: 'HEAD',
-                mode: 'cors',
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            console.log('Test de conexión al servidor:', {
-                status: testResponse.status,
-                statusText: testResponse.statusText,
-                headers: testResponse.headers ? Object.fromEntries(testResponse.headers.entries()) : 'No headers available'
-            });
-        } catch (testError) {
-            console.error('Error detallado al conectar con el servidor:', {
-                error: testError,
-                message: testError.message,
-                stack: testError.stack
-            });
-            throw new Error('No se pudo conectar con el servidor. Por favor, verifica que el servidor esté corriendo en ' + API_URL);
-        }
-
-        console.log('Iniciando petición principal...');
         const response = await fetch(`${API_URL}platos/`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            mode: 'cors',
-            credentials: 'include'
+            mode: 'cors'
         });
         
         console.log('Respuesta del servidor:', {
             status: response.status,
-            statusText: response.statusText,
-            headers: response.headers ? Object.fromEntries(response.headers.entries()) : 'No headers available'
+            statusText: response.statusText
         });
         
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Error del servidor:', {
-                status: response.status,
-                statusText: response.statusText,
-                body: errorText
-            });
-            throw new Error(`Error del servidor: ${response.status} ${response.statusText || 'Error desconocido'}`);
+            throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
         }
         
-        let menuData;
-        try {
-            const responseData = await response.json();
-            console.log('Datos recibidos:', responseData);
-            
-            // Verificar si la respuesta tiene el formato esperado
-            if (!responseData) {
-                throw new Error('La respuesta del servidor está vacía');
-            }
-            
-            menuData = responseData.data || responseData;
-            
-            // Verificar si menuData es un array
-            if (!Array.isArray(menuData)) {
-                console.error('Formato de datos inválido:', menuData);
-                throw new Error('El formato de los datos recibidos no es válido');
-            }
-            
-            // Verificar si el array está vacío
-            if (menuData.length === 0) {
-                console.warn('El menú está vacío');
-                showNotification('No hay platos disponibles en el menú', 'warning');
-            }
-        } catch (e) {
-            console.error('Error al procesar la respuesta:', {
-                error: e,
-                message: e.message,
-                stack: e.stack
-            });
-            throw new Error('Error al procesar la respuesta del servidor: ' + e.message);
+        const responseData = await response.json();
+        console.log('Datos recibidos:', responseData);
+        
+        if (!responseData || !responseData.data) {
+            throw new Error('Formato de respuesta inválido');
         }
         
-        // Si los datos están en formato de fixture (con model, pk, fields)
-        if (Array.isArray(menuData) && menuData.length > 0 && menuData[0].fields) {
-            menuData = menuData.map(item => ({
-                id: item.pk,
-                nombre: item.fields.nombre,
-                categoria: item.fields.categoria,
-                descripcion: item.fields.descripcion,
-                precio: item.fields.precio,
-                imagen: item.fields.imagen
-            }));
+        const menuData = responseData.data;
+        
+        if (!Array.isArray(menuData)) {
+            throw new Error('Los datos recibidos no son un array');
+        }
+        
+        if (menuData.length === 0) {
+            showNotification('No hay platos disponibles en el menú', 'warning');
         }
 
         // Mostrar el menú en la página
@@ -300,25 +239,16 @@ async function loadMenu() {
         showNotification('Menú cargado exitosamente', 'success');
 
     } catch (error) {
-        console.error('Error detallado al cargar el menú:', {
-            error: error,
-            message: error.message,
-            stack: error.stack
-        });
+        console.error('Error al cargar el menú:', error);
         
-        // Manejar diferentes tipos de errores
         let errorMessage = 'Error al cargar el menú. ';
         
         if (error.name === 'AbortError') {
             errorMessage += 'La solicitud tardó demasiado. Por favor, verifica tu conexión a internet.';
         } else if (error.message.includes('Failed to fetch')) {
             errorMessage += 'No se pudo conectar con el servidor. Por favor, verifica que el servidor esté corriendo en ' + API_URL;
-        } else if (error.message.includes('Error del servidor')) {
-            errorMessage += error.message;
-        } else if (error.message.includes('Formato de datos inválido')) {
-            errorMessage += 'Los datos recibidos no tienen el formato esperado.';
         } else {
-            errorMessage += 'Ocurrió un error inesperado: ' + error.message;
+            errorMessage += error.message;
         }
 
         showNotification(errorMessage, 'error');

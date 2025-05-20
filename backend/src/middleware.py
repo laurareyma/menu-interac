@@ -11,11 +11,12 @@ class TokenAuthenticationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Excluir PUT a /api/pedidos/<id>/status/ de la autenticación
+        # Excluir rutas que no requieren autenticación
         if (
-            request.method == 'PUT' and
+            request.path.startswith('/api/platos/') or  # Excluir ruta de platos
+            (request.method == 'PUT' and
             request.path.startswith('/api/pedidos/') and
-            request.path.endswith('/status/')
+            request.path.endswith('/status/'))
         ):
             return self.get_response(request)
         # Verificar si la ruta requiere autenticación
